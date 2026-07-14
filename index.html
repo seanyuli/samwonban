@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>三元盤 삼원반 — 사주 · 점성술 · 수비학</title>
+<meta name="description" content="사주, 서양 점성술, 수비학을 하나의 명반으로 합친 운세 앱" />
+<link rel="icon" href="data:," />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700;900&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+
+  html, body { margin:0; padding:0; min-height:100%; background:#0B0920; }
+  * { box-sizing: border-box; }
+
+  .app-root {
+    min-height: 100vh;
+    background: #0B0920;
+    color: #E8E4F3;
+    font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    padding: 32px 16px 56px;
+  }
+  .header { text-align: center; margin-bottom: 28px; }
+  .header .eyebrow { font-size: 12px; letter-spacing: 4px; color: #8B7FC7; margin-bottom: 8px; }
+  .header h1 {
+    font-family: 'Noto Serif KR', serif;
+    font-weight: 700;
+    font-size: 30px;
+    margin: 0 0 10px;
+    background: linear-gradient(135deg, #E8C874, #C4A155 45%, #8B7FC7);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 2px;
+  }
+  .header p { color: #A79FCB; font-size: 14px; margin: 0; line-height: 1.6; }
+
+  .content-wrap { max-width: 460px; margin: 0 auto; }
+
+  .birth-form { background: #14112C; border: 1px solid #2C2756; border-radius: 16px; padding: 26px 22px 22px; }
+  .form-lede { font-size: 13.5px; color: #B3ABD6; line-height: 1.7; margin: 0 0 20px; }
+  .field { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; font-size: 13px; color: #C9C2E8; }
+  .field input {
+    background: #0F0C24; border: 1px solid #35306A; border-radius: 9px;
+    padding: 11px 12px; color: #EDE8DC; font-size: 14px; font-family: inherit;
+    width: 100%;
+  }
+  .field input:focus { outline: 2px solid #8B7FC7; outline-offset: 1px; }
+  .field input:disabled { opacity: 0.4; }
+  .time-picker-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .time-picker-row select {
+    background: #0F0C24;
+    border: 1px solid #35306A;
+    border-radius: 9px;
+    padding: 11px 10px;
+    color: #EDE8DC;
+    font-size: 14px;
+    font-family: inherit;
+    flex: 1;
+    min-width: 72px;
+  }
+  .time-picker-row select:disabled { opacity: 0.4; }
+  .time-picker-row span.unit { color: #A79FCB; font-size: 13px; }
+  .checkbox-field { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #A79FCB; margin-bottom: 20px; }
+  .checkbox-field input { width: 15px; height: 15px; }
+  .form-error { color: #E08585; font-size: 12.5px; margin: -6px 0 14px; }
+  .submit-btn {
+    width: 100%; padding: 13px; border-radius: 9px; border: none;
+    background: linear-gradient(135deg, #C4A155, #A2803D);
+    color: #1A1633; font-weight: 700; font-size: 14.5px; letter-spacing: 1px;
+    cursor: pointer; font-family: 'Noto Sans KR', sans-serif;
+  }
+  .submit-btn:hover { filter: brightness(1.08); }
+  .submit-btn:focus-visible { outline: 2px solid #E8C874; outline-offset: 2px; }
+
+  .chart-wrap { display: flex; justify-content: center; margin: 4px 0 22px; }
+  .chart-svg { width: 100%; max-width: 380px; height: auto; }
+  @media (prefers-reduced-motion: no-preference) {
+    .chart-svg { animation: fadein 0.9s ease; }
+  }
+  @keyframes fadein { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+
+  .cards-grid { display: flex; flex-direction: column; gap: 14px; margin-bottom: 18px; }
+  .info-card { background: #14112C; border: 1px solid #2C2756; border-left: 3px solid var(--accent); border-radius: 12px; padding: 18px 18px 16px; }
+  .info-card-title { font-size: 12px; letter-spacing: 1px; color: #8B7FC7; margin-bottom: 12px; font-weight: 500; }
+  .card-hero { display: flex; align-items: baseline; gap: 12px; margin-bottom: 10px; }
+  .hero-hanja { font-family: 'Noto Serif KR', serif; font-size: 30px; font-weight: 700; color: #E8C874; }
+  .hero-symbol { font-size: 32px; color: #8B7FC7; }
+  .hero-number { font-family: 'Noto Serif KR', serif; font-size: 32px; font-weight: 700; color: #C4A155; }
+  .hero-sub { font-size: 13px; color: #B3ABD6; }
+  .card-desc { font-size: 13.5px; line-height: 1.7; color: #D3CDEA; margin: 0 0 10px; }
+  .pillar-row { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: #8B7FC7; border-top: 1px dashed #2C2756; padding-top: 10px; }
+
+  .synthesis { background: linear-gradient(160deg, #1B1740, #120F28); border: 1px solid #3A3466; border-radius: 14px; padding: 20px 20px 18px; margin-bottom: 18px; }
+  .synthesis-title { font-family: 'Noto Serif KR', serif; font-size: 15px; font-weight: 700; color: #E8C874; margin-bottom: 12px; }
+  .synthesis p { font-size: 13.5px; line-height: 1.8; color: #D3CDEA; margin: 0 0 12px; }
+  .synthesis p:last-child { margin-bottom: 0; }
+
+  .disclaimer { font-size: 11.5px; color: #5F5896; line-height: 1.7; text-align: center; margin: 4px 0 20px; }
+
+  .reset-btn {
+    display: block; margin: 0 auto; padding: 10px 22px; background: transparent;
+    border: 1px solid #3A3466; color: #A79FCB; border-radius: 20px; font-size: 13px;
+    cursor: pointer; font-family: 'Noto Sans KR', sans-serif;
+  }
+  .reset-btn:hover { border-color: #8B7FC7; color: #C9C2E8; }
+
+  /* ---- 상세풀이 영역 ---- */
+  .detail-section-title {
+    text-align: center;
+    font-family: 'Noto Serif KR', serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: #E8C874;
+    margin: 30px 0 4px;
+    letter-spacing: 1px;
+  }
+  .detail-section-sub {
+    text-align: center;
+    font-size: 12.5px;
+    color: #8B7FC7;
+    margin: 0 0 16px;
+  }
+  .detail-card {
+    background: #14112C;
+    border: 1px solid #2C2756;
+    border-left: 3px solid var(--accent);
+    border-radius: 12px;
+    padding: 18px 18px 16px;
+    margin-bottom: 14px;
+  }
+  .detail-card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #E8C874;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .detail-card-title .badge {
+    font-size: 10.5px;
+    font-weight: 400;
+    color: #8B7FC7;
+    border: 1px solid #3A3466;
+    border-radius: 10px;
+    padding: 1px 8px;
+  }
+  .detail-card p { font-size: 13.5px; line-height: 1.8; color: #D3CDEA; margin: 0; }
+  .year-select-row {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 12.5px; color: #B3ABD6;
+  }
+  .year-select-row select {
+    background: #0F0C24; border: 1px solid #35306A; border-radius: 8px;
+    color: #EDE8DC; padding: 6px 10px; font-size: 13px; font-family: inherit;
+  }
+  .month-list { display: flex; flex-direction: column; gap: 10px; }
+  .month-row {
+    background: #0F0C24;
+    border: 1px solid #262056;
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .month-row-head {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+  .month-row-head .month-num {
+    font-family: 'Noto Serif KR', serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: #E8C874;
+  }
+  .month-row-head .ganzhi {
+    font-size: 12px;
+    color: #8B7FC7;
+  }
+  .month-row-head .tengod-badge {
+    font-size: 10.5px;
+    color: #1A1633;
+    background: #C4A155;
+    border-radius: 8px;
+    padding: 1px 8px;
+    font-weight: 700;
+    margin-left: auto;
+  }
+  .month-row p { font-size: 12.5px; line-height: 1.7; color: #C9C2E8; margin: 0; }
+  .month-subline {
+    font-size: 12px;
+    line-height: 1.7;
+    color: #B3ABD6;
+    margin-top: 6px;
+  }
+  .month-subline b {
+    color: #E8C874;
+    font-weight: 700;
+    margin-right: 5px;
+  }
+
+  .job-chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; }
+  .job-chip {
+    font-size: 12px;
+    color: #EDE8DC;
+    background: #1F1A45;
+    border: 1px solid #3A3466;
+    border-radius: 16px;
+    padding: 5px 12px;
+  }
+  .subcard-label {
+    font-size: 11.5px;
+    color: #8B7FC7;
+    font-weight: 700;
+    margin: 14px 0 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .element-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .element-bar-label {
+    width: 34px;
+    font-size: 12.5px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .element-bar-track {
+    flex: 1;
+    height: 10px;
+    background: #0F0C24;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .element-bar-fill { height: 100%; border-radius: 5px; }
+  .element-bar-count {
+    width: 18px;
+    text-align: right;
+    font-size: 12px;
+    color: #B3ABD6;
+    flex-shrink: 0;
+  }
+  .strength-badge-row {
+    display: flex;
+    gap: 8px;
+    margin: 14px 0 10px;
+    flex-wrap: wrap;
+  }
+  .strength-badge {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 14px;
+    background: #1F1A45;
+    border: 1px solid #3A3466;
+    color: #E8C874;
+  }
+  .beta-badge {
+    display: inline-block;
+    font-size: 11px;
+    color: #1A1633;
+    background: linear-gradient(135deg, #E8C874, #C4A155);
+    padding: 3px 10px;
+    border-radius: 10px;
+    margin: 0 0 14px;
+    font-weight: 700;
+  }
+
+  /* ---- 후기 남기기 ---- */
+  .review-section {
+    background: linear-gradient(160deg, #1B1740, #120F28);
+    border: 1px solid #3A3466;
+    border-radius: 14px;
+    padding: 22px 20px;
+    margin: 26px 0 18px;
+  }
+  .review-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #E8C874;
+    margin: 0 0 6px;
+    text-align: center;
+  }
+  .review-sub {
+    font-size: 12.5px;
+    color: #A79FCB;
+    text-align: center;
+    margin: 0 0 18px;
+    line-height: 1.6;
+  }
+  .star-row {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .star-btn {
+    background: none;
+    border: none;
+    font-size: 30px;
+    line-height: 1;
+    cursor: pointer;
+    color: #3A3466;
+    padding: 2px;
+    transition: color 0.15s;
+  }
+  .star-btn.active { color: #E8C874; }
+  .review-textarea {
+    width: 100%;
+    min-height: 80px;
+    background: #0F0C24;
+    border: 1px solid #35306A;
+    border-radius: 9px;
+    padding: 12px;
+    color: #EDE8DC;
+    font-size: 13.5px;
+    font-family: inherit;
+    resize: vertical;
+    margin-bottom: 14px;
+  }
+  .review-textarea:focus { outline: 2px solid #8B7FC7; outline-offset: 1px; }
+  .review-consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 12px;
+    color: #A79FCB;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  .review-consent input { margin-top: 2px; width: 15px; height: 15px; flex-shrink: 0; }
+  .review-submit-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 9px;
+    border: none;
+    background: linear-gradient(135deg, #E8C874, #C4A155);
+    color: #1A1633;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .review-submit-btn:hover { filter: brightness(1.06); }
+  .review-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .review-error { color: #E08585; font-size: 12px; margin: -8px 0 12px; text-align: center; }
+  .review-thanks {
+    text-align: center;
+    padding: 10px 0;
+  }
+  .review-thanks .icon { font-size: 30px; margin-bottom: 8px; }
+  .review-thanks .msg { font-size: 14px; color: #F3E9D2; font-weight: 700; margin-bottom: 4px; }
+  .review-thanks .sub { font-size: 12.5px; color: #A79FCB; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+(function () {
+  "use strict";
+
+  /* ============================================================
+     삼원반 (三元盤) — 사주 + 서양 점성술 + 수비학 (순수 JS, 무의존성)
+     ============================================================ */
+
+  var STEM_KO = ["갑", "을", "병", "정", "무", "기", "경", "신", "임", "계"];
+  var STEM_HANJA = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
+  var STEM_ELEMENT = ["목", "목", "화", "화", "토", "토", "금", "금", "수", "수"];
+
+  var BRANCH_KO = ["자", "축", "인", "묘", "진", "사", "오", "미", "신", "유", "술", "해"];
+  var BRANCH_HANJA = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
+  var BRANCH_ELEMENT = ["수", "토", "목", "목", "토", "화", "화", "토", "금", "금", "토", "수"];
+  var BRANCH_ANIMAL = ["쥐", "소", "호랑이", "토끼", "용", "뱀", "말", "양", "원숭이", "닭", "개", "돼지"];
+
+  var ELEMENT_COLOR = { 목: "#5B8C5A", 화: "#A23B3B", 토: "#B8935A", 금: "#ABA394", 수: "#4A6FA5" };
+  var ELEMENT_NAME_FULL = { 목: "목(木)", 화: "화(火)", 토: "토(土)", 금: "금(金)", 수: "수(水)" };
+
+  var ELEMENT_PERSONA = {
+    목: "목(木)은 오행 중 생장(生長)을 관장하는 기운으로, 위로 곧게 뻗어나가려는 방향성과 시작을 여는 추진력을 본질로 합니다. 사고의 확장과 계획 수립에 강점을 보이나, 유연성이 부족할 경우 완고함으로 발현될 수 있습니다.",
+    화: "화(火)는 오행 중 발산(發散)을 관장하는 기운으로, 안에 있는 것을 밖으로 드러내고 확산시키는 성질을 본질로 합니다. 표현력과 순발력이 뛰어나나, 조절되지 않으면 기운이 쉽게 소진되는 경향이 있습니다.",
+    토: "토(土)는 오행 중 중재(仲裁)와 저장(貯藏)을 관장하는 기운으로, 서로 다른 기운을 품고 중심을 잡아 지속시키는 성질을 본질로 합니다. 신뢰와 지구력이 강점이나, 변화에 대한 반응이 더딜 수 있습니다.",
+    금: "금(金)은 오행 중 숙살(肅殺)과 결단(決斷)을 관장하는 기운으로, 불필요한 것을 쳐내고 결과를 정확히 마무리하는 성질을 본질로 합니다. 원칙과 완결성에 강점을 보이나, 지나치면 냉정함으로 비칠 수 있습니다.",
+    수: "수(水)는 오행 중 응축(凝縮)과 지혜(智慧)를 관장하는 기운으로, 낮은 곳으로 스며들어 상황에 맞춰 형태를 바꾸는 성질을 본질로 합니다. 사유와 적응력이 강점이나, 방향성이 흐트러지면 우유부단함으로 나타날 수 있습니다."
+  };
+
+  var ZODIAC = [
+    ["염소자리", "♑", "흙", 12, 22, 1, 19],
+    ["물병자리", "♒", "공기", 1, 20, 2, 18],
+    ["물고기자리", "♓", "물", 2, 19, 3, 20],
+    ["양자리", "♈", "불", 3, 21, 4, 19],
+    ["황소자리", "♉", "흙", 4, 20, 5, 20],
+    ["쌍둥이자리", "♊", "공기", 5, 21, 6, 21],
+    ["게자리", "♋", "물", 6, 22, 7, 22],
+    ["사자자리", "♌", "불", 7, 23, 8, 22],
+    ["처녀자리", "♍", "흙", 8, 23, 9, 22],
+    ["천칭자리", "♎", "공기", 9, 23, 10, 22],
+    ["전갈자리", "♏", "물", 10, 23, 11, 21],
+    ["사수자리", "♐", "불", 11, 22, 12, 21]
+  ];
+
+  var ZODIAC_ELEMENT_KO = { 불: "화", 흙: "토", 공기: "금", 물: "수" };
+
+  var ZODIAC_ORDER_FROM_ARIES = [
+    "양자리", "황소자리", "쌍둥이자리", "게자리", "사자자리", "처녀자리",
+    "천칭자리", "전갈자리", "사수자리", "염소자리", "물병자리", "물고기자리"
+  ];
+
+  var ZODIAC_SYMBOL = {};
+  ZODIAC.forEach(function (z) { ZODIAC_SYMBOL[z[0]] = z[1]; });
+
+  var ZODIAC_PERSONA = {
+    양자리: "화성(Mars)이 지배하는 활동궁(活動宮)으로, 목표를 인지하는 즉시 행동으로 옮기는 개척자적 추진력이 본질입니다. 시작하는 능력은 탁월하나 지속성에서는 별도의 관리가 필요합니다.",
+    황소자리: "금성(Venus)이 지배하는 고정궁(固定宮)으로, 검증된 것을 견고하게 지켜내는 안정 지향성이 본질입니다. 속도보다 지속가능성을 우선하며, 변화에는 신중하게 반응합니다.",
+    쌍둥이자리: "수성(Mercury)이 지배하는 변통궁(變通宮)으로, 여러 정보와 관계를 동시에 처리하는 다면적 사고가 본질입니다. 호기심과 적응력이 강점이나 집중의 지속성이 관건입니다.",
+    게자리: "달(Moon)이 지배하는 활동궁으로, 정서적 안전지대를 구축하고 지켜내려는 보호본능이 본질입니다. 공감능력이 뛰어나며 가까운 관계에 깊이 몰입합니다.",
+    사자자리: "태양(Sun)이 지배하는 고정궁으로, 스스로 중심에서 존재감을 발하려는 표현욕구가 본질입니다. 리더십과 자기확신이 강점이며 인정받을 때 역량이 극대화됩니다.",
+    처녀자리: "수성이 지배하는 변통궁으로, 세부까지 분석하여 완성도를 높이는 정교함이 본질입니다. 실용적 문제해결에 강하며 스스로에 대한 기준이 엄격한 편입니다.",
+    천칭자리: "금성이 지배하는 활동궁으로, 대립하는 요소 사이에서 균형점을 찾는 조율 능력이 본질입니다. 관계지향적이며 공정성과 미적 감각을 함께 중시합니다.",
+    전갈자리: "명왕성(Pluto)이 지배하는 고정궁으로, 표면 아래의 본질을 파고드는 심층 탐구력이 본질입니다. 감정의 강도가 깊으며 신뢰가 형성되면 강한 결속력을 보입니다.",
+    사수자리: "목성(Jupiter)이 지배하는 변통궁으로, 알려진 경계 너머를 향하는 확장 지향성이 본질입니다. 낙관성과 철학적 사고가 강점이며 자유로운 환경에서 능력이 발휘됩니다.",
+    염소자리: "토성(Saturn)이 지배하는 활동궁으로, 장기적 목표를 향해 단계적으로 성과를 축적하는 구조화 능력이 본질입니다. 책임감이 강하며 시간이 지날수록 진가가 드러납니다.",
+    물병자리: "천왕성(Uranus)이 지배하는 고정궁으로, 기존 체계에서 벗어나 독자적 관점을 구축하는 개혁성이 본질입니다. 집단보다 원칙을, 관습보다 혁신을 우선합니다.",
+    물고기자리: "해왕성(Neptune)이 지배하는 변통궁으로, 경계를 허물고 공감하며 스며드는 감수성이 본질입니다. 직관력이 뛰어나며 예술적·영적 영역에서 강점을 보입니다."
+  };
+
+  var LIFE_PATH_MEANING = {
+    1: "독립성과 주도성을 핵심 과제로 지니는 수입니다. 새로운 영역을 개척하고 스스로 결정을 내리는 경험을 통해 성장하며, 타인에게 의존하지 않는 자기 확신의 구축이 평생의 주제가 됩니다.",
+    2: "협력과 감응력을 핵심 과제로 지니는 수입니다. 관계 속에서 균형점을 찾고 중재하는 역할에서 강점을 발휘하며, 자기 주장과 배려 사이의 조화를 찾는 과정이 평생의 주제가 됩니다.",
+    3: "표현과 창조를 핵심 과제로 지니는 수입니다. 언어·예술·소통을 통해 내면을 밖으로 드러내는 데 강점을 보이며, 산만해지기 쉬운 에너지를 하나의 결과물로 응축하는 것이 평생의 주제가 됩니다.",
+    4: "구조와 성실을 핵심 과제로 지니는 수입니다. 체계를 세우고 꾸준히 실행하는 데 강점을 보이며, 정해진 틀에 갇히지 않고 유연성을 확보하는 것이 평생의 주제가 됩니다.",
+    5: "자유와 변화를 핵심 과제로 지니는 수입니다. 다양한 경험을 통해 확장하는 데 강점을 보이며, 안정적 기반 없이 흩어지지 않도록 중심을 지키는 것이 평생의 주제가 됩니다.",
+    6: "책임과 돌봄을 핵심 과제로 지니는 수입니다. 공동체와 가까운 관계를 보살피는 데 강점을 보이며, 헌신이 희생으로 치우치지 않도록 자기 자신도 함께 돌보는 것이 평생의 주제가 됩니다.",
+    7: "탐구와 통찰을 핵심 과제로 지니는 수입니다. 표면 아래의 원리를 파고드는 데 강점을 보이며, 지나친 내향성으로 고립되지 않고 통찰을 나누는 것이 평생의 주제가 됩니다.",
+    8: "성취와 실행력을 핵심 과제로 지니는 수입니다. 목표를 결과로 전환하는 데 강점을 보이며, 성과에 대한 집착이 관계를 해치지 않도록 균형을 유지하는 것이 평생의 주제가 됩니다.",
+    9: "완결과 이타성을 핵심 과제로 지니는 수입니다. 넓은 시야로 품고 마무리 짓는 데 강점을 보이며, 놓아야 할 것을 놓는 결단이 평생의 주제가 됩니다.",
+    11: "직관과 영감을 핵심 과제로 지니는 마스터 수입니다. 남들보다 예민한 감각으로 시대의 흐름을 앞서 읽는 데 강점을 보이나, 그 예민함이 불안으로 전환되지 않도록 스스로를 다스리는 것이 평생의 주제가 됩니다.",
+    22: "이상의 현실화를 핵심 과제로 지니는 마스터 수입니다. 큰 그림을 실제 구조물로 완성시키는 드문 역량을 지니나, 스스로에 대한 기대치가 압박으로 작용하지 않도록 하는 것이 평생의 주제가 됩니다.",
+    33: "헌신과 가르침을 핵심 과제로 지니는 마스터 수입니다. 자신의 경험을 타인의 성장으로 전환시키는 데 강점을 보이나, 타인을 위한 헌신 속에서 자기 자신을 잃지 않는 것이 평생의 주제가 됩니다."
+  };
+
+  /* ---------- 사주 계산 로직 ---------- */
+
+  function mod(n, m) { return ((n % m) + m) % m; }
+
+  function getYearPillar(y, m, d) {
+    var effectiveYear = y;
+    if (m === 1 || (m === 2 && d < 4)) effectiveYear -= 1;
+    return { stemIdx: mod(effectiveYear - 4, 10), branchIdx: mod(effectiveYear - 4, 12), effectiveYear: effectiveYear };
+  }
+
+  var MONTH_BREAKPOINTS = [
+    [348, 0], [318, 11], [288, 10], [256, 9], [225, 8], [193, 7],
+    [161, 6], [130, 5], [98, 4], [68, 3], [35, 2], [6, 1]
+  ];
+
+  function getMonthBranch(m, d) {
+    var comp = (m - 1) * 31 + d;
+    for (var i = 0; i < MONTH_BREAKPOINTS.length; i++) {
+      if (comp >= MONTH_BREAKPOINTS[i][0]) return MONTH_BREAKPOINTS[i][1];
+    }
+    return 0;
+  }
+
+  var MONTH_START_STEM_BY_GROUP = { 0: 2, 1: 4, 2: 6, 3: 8, 4: 0 };
+
+  function branchToMonthOrder(branchIdx) { return mod(branchIdx - 2, 12) + 1; }
+
+  function getMonthPillar(yearStemIdx, m, d) {
+    var branchIdx = getMonthBranch(m, d);
+    var group = mod(yearStemIdx, 5);
+    var startStem = MONTH_START_STEM_BY_GROUP[group];
+    var order = branchToMonthOrder(branchIdx);
+    var stemIdx = mod(startStem + (order - 1), 10);
+    return { stemIdx: stemIdx, branchIdx: branchIdx };
+  }
+
+  var DAY_EPOCH = new Date(2024, 0, 1, 12, 0, 0);
+
+  function getDayPillar(y, m, d) {
+    var target = new Date(y, m - 1, d, 12, 0, 0);
+    var diffDays = Math.round((target - DAY_EPOCH) / 86400000);
+    var idx60 = mod(diffDays, 60);
+    return { stemIdx: mod(idx60, 10), branchIdx: mod(idx60, 12) };
+  }
+
+  var HOUR_START_STEM_BY_GROUP = { 0: 0, 1: 2, 2: 4, 3: 6, 4: 8 };
+
+  function hourToBranchIdx(hour) {
+    if (hour >= 23 || hour < 1) return 0;
+    if (hour < 3) return 1;
+    if (hour < 5) return 2;
+    if (hour < 7) return 3;
+    if (hour < 9) return 4;
+    if (hour < 11) return 5;
+    if (hour < 13) return 6;
+    if (hour < 15) return 7;
+    if (hour < 17) return 8;
+    if (hour < 19) return 9;
+    if (hour < 21) return 10;
+    return 11;
+  }
+
+  function getHourPillar(dayStemIdx, hour) {
+    var branchIdx = hourToBranchIdx(hour);
+    var group = mod(dayStemIdx, 5);
+    var startStem = HOUR_START_STEM_BY_GROUP[group];
+    var stemIdx = mod(startStem + branchIdx, 10);
+    return { stemIdx: stemIdx, branchIdx: branchIdx };
+  }
+
+  function getZodiac(m, d) {
+    for (var i = 0; i < ZODIAC.length; i++) {
+      var z = ZODIAC[i];
+      var name = z[0], symbol = z[1], element = z[2], sm = z[3], sd = z[4], em = z[5], ed = z[6];
+      if (sm > em) {
+        if ((m === sm && d >= sd) || (m === em && d <= ed)) return { name: name, symbol: symbol, element: element };
+      } else {
+        if ((m === sm && d >= sd) || (m === em && d <= ed) || (m > sm && m < em)) return { name: name, symbol: symbol, element: element };
+      }
+    }
+    return { name: "양자리", symbol: "♈", element: "불" };
+  }
+
+  function digitSum(n) {
+    return String(Math.abs(n)).split("").reduce(function (a, c) { return a + Number(c); }, 0);
+  }
+
+  function getLifePathNumber(y, m, d) {
+    var total = digitSum(y) + digitSum(m) + digitSum(d);
+    while (total > 9 && total !== 11 && total !== 22 && total !== 33) {
+      total = digitSum(total);
+    }
+    return total;
+  }
+
+  var GENERATES = { 목: "화", 화: "토", 토: "금", 금: "수", 수: "목" };
+  var OVERCOMES = { 목: "토", 화: "금", 토: "수", 금: "목", 수: "화" };
+
+  /* ---------- 십성(十星) 계산 ---------- */
+  /* 비견/겁재: 일간과 같은 오행 (같은 음양=비견, 다른 음양=겁재)
+     식신/상관: 일간이 생하는 오행 (같은 음양=식신, 다른 음양=상관)
+     편재/정재: 일간이 극하는 오행 (같은 음양=편재, 다른 음양=정재)
+     편관/정관: 일간을 극하는 오행 (같은 음양=편관·칠살, 다른 음양=정관)
+     편인/정인: 일간을 생하는 오행 (같은 음양=편인, 다른 음양=정인)          */
+
+  function isYangStem(stemIdx) { return stemIdx % 2 === 0; }
+
+  function getTenGod(dayStemIdx, otherStemIdx) {
+    var dayElement = STEM_ELEMENT[dayStemIdx];
+    var otherElement = STEM_ELEMENT[otherStemIdx];
+    var sameYinYang = isYangStem(dayStemIdx) === isYangStem(otherStemIdx);
+
+    if (dayElement === otherElement) return sameYinYang ? "비견" : "겁재";
+    if (GENERATES[dayElement] === otherElement) return sameYinYang ? "식신" : "상관";
+    if (OVERCOMES[dayElement] === otherElement) return sameYinYang ? "편재" : "정재";
+    if (OVERCOMES[otherElement] === dayElement) return sameYinYang ? "편관" : "정관";
+    if (GENERATES[otherElement] === dayElement) return sameYinYang ? "편인" : "정인";
+    return "비견";
+  }
+
+  var TEN_GOD_MEANING = {
+    비견: "일간과 같은 오행·같은 음양의 기운으로, 스스로의 힘으로 서고자 하는 주체성과 협업보다 독자 노선을 택하는 경향을 나타냅니다.",
+    겁재: "일간과 같은 오행·다른 음양의 기운으로, 경쟁과 추진력을 상징하며 필요할 때 과감히 밀어붙이는 근성으로 드러납니다.",
+    식신: "일간이 생해주는 오행·같은 음양의 기운으로, 여유 있게 자신의 재능을 표현하고 남에게 베푸는 방식의 능력 발휘를 뜻합니다.",
+    상관: "일간이 생해주는 오행·다른 음양의 기운으로, 기존 틀을 넘어서려는 예리한 표현력과 비판적 시각으로 나타납니다.",
+    편재: "일간이 극하는 오행·같은 음양의 기운으로, 유동적이고 규모가 큰 재물을 다루는 감각, 사업적 확장 성향을 상징합니다.",
+    정재: "일간이 극하는 오행·다른 음양의 기운으로, 착실하게 관리하고 지키는 재물, 안정적인 수입 구조를 향한 성향을 상징합니다.",
+    편관: "일간을 극하는 오행·같은 음양의 기운으로, 강한 압박과 위기감 속에서 오히려 결단력을 발휘하는 힘을 뜻합니다.",
+    정관: "일간을 극하는 오행·다른 음양의 기운으로, 질서와 규범을 존중하며 책임을 다하는 태도, 조직 내 신뢰로 나타납니다.",
+    편인: "일간을 생해주는 오행·같은 음양의 기운으로, 독자적인 사유와 직관적 통찰, 남과 다른 방식의 학습 성향을 상징합니다.",
+    정인: "일간을 생해주는 오행·다른 음양의 기운으로, 정통적인 보호와 지원, 안정적으로 쌓아가는 학습·수용력을 뜻합니다."
+  };
+
+  /* ---------- 상세풀이: 재물운 / 직업운 / 배우자운 / 세운 (베타 - 전체 무료 공개) ---------- */
+
+  var CONFIG = {
+    /* ⚠️ Google Apps Script 배포 후 나오는 웹 앱 URL로 교체하세요.
+       (같이 드린 apps_script_review_backend.gs.txt 파일의 안내를 따라 설정) */
+    REVIEW_ENDPOINT_URL: "https://script.google.com/macros/s/AKfycbx6jYTaZ8BrmiQS6178iDM4eHUMmrvR5bd0YK-uZ8ZpXJbGYF-orJbipIohwKhNywDM/exec"
+  };
+
+  var WEALTH_TEXT = {
+    목: "목(木) 일간의 재성(財星)은 토(土)에 해당합니다. 명리학에서 재성은 일간이 극(剋)하는 오행으로 규정되며, 목극토(木剋土)의 원리에 따라 목 일간은 토의 성질—부동산, 실물자산, 정기적으로 축적되는 자산—을 재물의 본질로 삼습니다. 단기 시세차익보다 장기 보유·복리 축적 전략이 구조적으로 유리하며, 유동성이 지나치게 높은 투자처는 재성의 흐름과 어긋나 손실로 이어지기 쉽습니다.",
+    화: "화(火) 일간의 재성(財星)은 금(金)에 해당합니다. 화극금(火剋金)의 원리에 따라 화 일간은 금의 성질—규격화되고 완결된 결과물, 명확한 성과지표—을 재물의 본질로 삼습니다. 발산하는 기운을 하나의 결과물로 정확히 벼려낼 때 재성이 실현되며, 벌여놓은 일을 매듭짓지 않고 확장만 지속하면 재성이 흩어지는 손모(損耗) 구조에 놓이기 쉽습니다.",
+    토: "토(土) 일간의 재성(財星)은 수(水)에 해당합니다. 토극수(土剋水)의 원리에 따라 토 일간은 수의 성질—유동적이고 흐름을 타는 수입 구조, 정보성 자산—을 재물의 본질로 삼습니다. 흐름을 감지하고 그 흐름에 올라탈 때 재성이 실현되며, 한 곳에 자산을 고정시켜 두는 방식은 오히려 재성의 흐름을 정체시킵니다.",
+    금: "금(金) 일간의 재성(財星)은 목(木)에 해당합니다. 금극목(金剋木)의 원리에 따라 금 일간은 목의 성질—성장 초기 단계에 대한 선점, 미래 가치에 대한 투자—을 재물의 본질로 삼습니다. 씨앗의 단계에서 결단을 내리고 기다릴 때 재성이 실현되며, 이미 성장이 끝난 자산을 뒤늦게 좇는 방식은 재성의 원리와 어긋납니다.",
+    수: "수(水) 일간의 재성(財星)은 화(火)에 해당합니다. 수극화(水剋火)의 원리에 따라 수 일간은 화의 성질—외부에 드러내고 알리는 구조, 표현을 통한 수익화—을 재물의 본질로 삼습니다. 흩어져 있던 잠재력을 밝게 드러낼 때 재성이 실현되며, 자산이나 능력을 드러내지 않고 저장만 하는 방식은 재성의 순환을 막습니다."
+  };
+
+  var CAREER_TEXT = {
+    목: "목(木) 일간의 식상(食傷)은 화(火)에 해당합니다. 식상은 일간이 생(生)하는 오행으로, 자신의 역량을 밖으로 표현하고 발휘하는 통로를 의미합니다. 목생화(木生火)의 구조에서는 기획하고 시작한 것을 사람들 앞에 드러내는 역할, 초기 단계를 주도하고 확산시키는 직무에서 식상의 발현이 극대화됩니다.",
+    화: "화(火) 일간의 식상(食傷)은 토(土)에 해당합니다. 화생토(火生土)의 구조에서는 순간적인 발상을 실제 운영 가능한 체계로 전환하는 역할, 사람들을 신뢰로 결속시켜 지속시키는 직무에서 식상의 발현이 극대화됩니다.",
+    토: "토(土) 일간의 식상(食傷)은 금(金)에 해당합니다. 토생금(土生金)의 구조에서는 여러 자원과 사람을 모아 정확한 결과물로 완성시키는 역할, 품질관리와 마무리를 책임지는 직무에서 식상의 발현이 극대화됩니다.",
+    금: "금(金) 일간의 식상(食傷)은 수(水)에 해당합니다. 금생수(金生水)의 구조에서는 정해진 원칙을 다양한 상황에 유연하게 적용하는 역할, 정보를 걸러내고 재순환시키는 직무에서 식상의 발현이 극대화됩니다.",
+    수: "수(水) 일간의 식상(食傷)은 목(木)에 해당합니다. 수생목(水生木)의 구조에서는 조용히 관찰한 것을 새로운 기획으로 싹틔우는 역할, 아직 드러나지 않은 흐름을 먼저 포착해 시작하는 직무에서 식상의 발현이 극대화됩니다."
+  };
+
+  var SPOUSE_TEXT = {
+    same: "일간과 배우자궁(일지)이 같은 오행으로, 비화(比和) 구조를 이룹니다. 배우자와 기질적 동질성이 높아 안정적이지만, 서로 다른 자극이 부족해 관계가 정체될 소지가 있습니다. 의도적으로 다른 관심사를 공유하는 노력이 관계의 활력을 유지하는 데 도움이 됩니다.",
+    a_feeds_b: "일간이 배우자궁을 생(生)하는 구조로, 본인이 관계 안에서 먼저 기운을 내어주는 위치에 놓입니다. 먼저 챙기고 먼저 표현하는 역할을 자연스럽게 맡게 되며, 이 애정이 소진되지 않도록 받는 것에도 마음을 여는 균형이 필요합니다.",
+    b_feeds_a: "배우자궁이 일간을 생(生)하는 구조로, 배우자로부터 정서적 지지를 받는 결이 강합니다. 관계에 기대는 만큼 상대의 기운도 함께 살피는 것이 장기적인 균형을 유지하는 비결입니다.",
+    a_curbs_b: "일간이 배우자궁을 극(剋)하는 구조로, 관계 내 주도권이 본인에게 있는 경우가 많습니다. 통제하려는 경향이 과도해지지 않도록, 배우자의 의견을 먼저 묻는 습관이 관계를 부드럽게 만듭니다.",
+    b_curbs_a: "배우자궁이 일간을 극(剋)하는 구조로, 배우자나 관계 자체가 본인을 단련시키는 자극으로 작용하는 경우가 많습니다. 이 긴장을 억압으로 받아들이기보다 서로를 성장시키는 극제(剋制)의 과정으로 받아들이면 관계가 깊어집니다.",
+    neutral: "일간과 배우자궁 사이에 직접적인 생극(生剋) 관계가 형성되지 않는 구조입니다. 큰 갈등도, 큰 자극도 적은 잔잔한 관계가 되기 쉬우므로, 의식적으로 대화와 이벤트를 만들어야 관계에 깊이가 더해집니다."
+  };
+
+  var JOB_CATEGORIES = {
+    목: ["콘텐츠 기획자", "브랜드 마케터", "교육자·강사", "스타트업 창업가", "PR·홍보 전문가", "신사업 개발 담당", "조경·환경 관련직"],
+    화: ["조직관리·HR", "요식업·공간 운영", "커뮤니티 매니저", "금융상담사", "부동산 중개·개발", "경영 컨설턴트", "방송·엔터테인먼트"],
+    토: ["부동산·건설", "교육행정·안정형 교육기관", "농업·임업", "회계·재무 담당", "중재·상담·컨설팅", "품질관리(QA)", "생산관리"],
+    금: ["IT 개발자·엔지니어", "물류·무역 실무", "저널리스트·기자", "리서처·애널리스트", "전략기획", "금융 트레이더", "통번역가"],
+    수: ["연구원·학자", "작가·시나리오 작가", "UX·서비스 디자이너", "신사업 개발", "대학교수·강연자", "예술가·창작자", "심리상담사"]
+  };
+
+  var INVEST_GUIDE = {
+    목: "재성인 토(土)의 성질에 따라 부동산·토지 등 실물자산 비중을 높게 가져가는 전략이 구조적으로 유리합니다. 주식을 한다면 단기 테마주보다 우량주 장기 보유나 배당주 중심의 가치투자 방식이 기질과 맞으며, 잦은 매매는 오히려 손실을 부르기 쉽습니다.",
+    화: "재성인 금(金)의 성질에 따라 실적과 성과지표가 명확히 드러나는 성장주·기술주가 유리합니다. 실물자산보다는 유동성 있는 금융자산이 기질에 맞고, 결과가 즉시 확인되는 단기~중기 투자 사이클이 잘 맞습니다. 다만 확장만 하고 마무리를 짓지 않으면 수익 실현 타이밍을 놓치기 쉬우니 주의가 필요합니다.",
+    토: "재성인 수(水)의 성질에 따라 ETF·펀드처럼 여러 자산에 분산된 유동적 상품이 유리합니다. 고정된 자산보다 흐름을 타는 자산이 기질과 맞으며, 부동산을 한다면 시세차익형보다 임대수익형처럼 현금흐름이 꾸준히 발생하는 구조가 더 적합합니다.",
+    금: "재성인 목(木)의 성질에 따라 성장 초기 단계에 있는 자산—벤처·스타트업 투자, 성장주 조기 진입—이 유리합니다. 이미 성숙한 대형 자산보다 잠재력에 베팅하고 기다리는 전략이 기질과 맞으며, 뒤늦게 대세를 좇는 방식은 손해로 이어지기 쉽습니다.",
+    수: "재성인 화(火)의 성질에 따라 대중의 주목을 받는 트렌드 자산, 시세차익형 투자가 유리합니다. 배당처럼 조용히 쌓이는 수익보다 드러나고 확산되는 구조의 수익이 기질과 맞으며, 퍼스널 브랜딩을 기반으로 한 사업소득도 잘 맞는 편입니다."
+  };
+
+  var WEALTH_STRENGTH_NOTE = {
+    "신강_high": "일간이 힘있게 재성을 감당할 수 있는 신강(身强) 구조로, 재물이 실제 성과로 잘 연결되는 편입니다.",
+    "신강_low": "일간은 강한 데 비해 재성이 뚜렷하지 않은 구조로, 재물을 만들 잠재력은 있으나 이를 끌어올 계기(사업, 투자처)를 스스로 마련해야 하는 유형입니다.",
+    "신약_high": "재성은 풍부하나 일간이 이를 다 감당하기엔 다소 신약(身弱)한, 이른바 재다신약(財多身弱)에 가까운 구조입니다. 욕심을 부리기보다 자신의 그릇에 맞게 재물을 다루는 절제가 관건입니다.",
+    "신약_low": "재성도, 이를 다스릴 만한 신강함도 크지 않은 구조로, 무리한 확장보다 안정적으로 차근차근 쌓아가는 방식이 훨씬 유리합니다."
+  };
+
+  function getWealthStrengthKey(strength, wealthElementCount) {
+    var level = wealthElementCount >= 2 ? "high" : "low";
+    return strength + "_" + level;
+  }
+
+  var LIFE_PATH_INVEST_HINT = {
+    1: "생명수 1은 독자적인 투자 판단에 강점이 있습니다. 남의 추천보다 스스로 분석한 결정에서 성과가 나는 유형입니다.",
+    2: "생명수 2는 공동 투자나 부부 공동 자산 관리에서 안정감을 느끼는 유형입니다. 혼자보다 함께 결정할 때 리스크가 줄어듭니다.",
+    3: "생명수 3은 아이디어를 자산화하는 방식—콘텐츠, 지식재산—에 강점이 있습니다. 짧은 호흡의 단타보다 창작물이 쌓여 만드는 수익에 유리합니다.",
+    4: "생명수 4는 부동산처럼 눈에 보이고 견고한 자산을 축적하는 데 강점이 있습니다. 꾸준함이 곧 자산이 되는 유형입니다.",
+    5: "생명수 5는 여러 자산군에 걸친 분산 투자에 강점이 있습니다. 한 곳에 자금이 묶이는 구조보다 유연하게 옮길 수 있는 포트폴리오가 유리합니다.",
+    6: "생명수 6은 가족 단위 자산 관리, 안정형 상품에 강점이 있습니다. 리스크보다 지속가능성을 우선하는 편이 기질과 맞습니다.",
+    7: "생명수 7은 스스로 파고들어 분석한 리서치 기반 투자에 강점이 있습니다. 남들이 보지 못한 이면을 읽어내는 힘이 있습니다.",
+    8: "생명수 8은 규모 있는 자산 형성, 사업체·실물자산 구축에 강점이 있습니다. 결과 지향적인 투자 성향이 실제 성과로 이어지기 쉽습니다.",
+    9: "생명수 9는 장기적 관점의 가치투자에 강점이 있습니다. 단기 변동에 일희일비하지 않는 것이 오히려 큰 자산이 됩니다.",
+    11: "생명수 11은 직관적으로 타이밍을 포착하는 감각이 있으나, 그 직관이 충동으로 흐르지 않도록 원칙을 세워두는 것이 중요합니다.",
+    22: "생명수 22는 장기 프로젝트형 자산—부동산 개발, 사업체 구축—을 실제로 완성시키는 드문 역량이 있습니다.",
+    33: "생명수 33은 사회적 가치를 담은 투자(ESG, 임팩트 투자 등)에서 만족도와 성과를 동시에 얻는 유형입니다."
+  };
+
+  var TEN_GOD_GROUP = {
+    비견: "비겁", 겁재: "비겁",
+    식신: "식상", 상관: "식상",
+    편재: "재성", 정재: "재성",
+    편관: "관성", 정관: "관성",
+    편인: "인성", 정인: "인성"
+  };
+
+  var RELATIONSHIP_TEXT = {
+    비겁: "인간관계에서 비겁(比劫)의 기운이 두드러집니다. 동료·형제자매처럼 수평적인 관계에서 강한 유대감을 느끼며, 의리와 신의를 관계의 기준으로 삼습니다. 다만 관계가 경쟁 구도로 흐르면 자존심 다툼으로 번지기 쉬우니, 주도권을 나눠야 하는 관계에서는 의식적으로 한 걸음 물러나는 태도가 필요합니다. 오래 알고 지낸 친구, 같은 처지의 동료들과의 관계에서 가장 큰 힘을 얻는 유형입니다.",
+    식상: "인간관계에서 식상(食傷)의 기운이 두드러집니다. 표현하고 나누는 것으로 관계를 맺는 유형으로, 먼저 다가가 대화를 트고 분위기를 이끄는 역할을 자연스럽게 맡습니다. 다만 할 말을 다 하는 성향이 때로 상대에게 직설적으로 느껴질 수 있어, 친밀한 사이일수록 표현의 완급 조절이 관계를 오래 지속시키는 열쇠가 됩니다.",
+    재성: "인간관계에서 재성(財星)의 기운이 두드러집니다. 실리적이고 현실적인 기준으로 관계를 판단하는 유형으로, 서로에게 실질적인 도움이 되는 관계에서 만족도가 높습니다. 다만 이해관계가 얽히면 관계의 순수성이 흐려질 수 있으니, 가까운 사이일수록 금전 문제를 명확히 하는 습관이 관계를 오래 지켜줍니다.",
+    관성: "인간관계에서 관성(官星)의 기운이 두드러집니다. 위계와 역할이 분명한 관계에서 안정감을 느끼는 유형으로, 조직이나 공동체 안에서 신뢰를 얻는 데 강점을 보입니다. 다만 스스로에게도 타인에게도 기준이 엄격해질 수 있어, 사적인 관계에서는 규칙보다 유연함을 발휘하는 연습이 도움이 됩니다.",
+    인성: "인간관계에서 인성(印星)의 기운이 두드러집니다. 정서적으로 깊이 교감하고 서로를 돌보는 관계를 선호하는 유형으로, 폭넓은 인맥보다 소수의 깊은 관계에 집중하는 경향이 있습니다. 다만 지나치게 의존적인 관계로 흐르면 스스로의 결정력이 약해질 수 있어, 관계 안에서도 자기 기준을 놓지 않는 것이 중요합니다."
+  };
+
+  var LIFE_PATH_RELATIONSHIP_HINT = {
+    1: "관계에서도 주도권을 쥐는 편이 편안하며, 이끄는 역할을 맡을 때 관계가 안정됩니다.",
+    2: "관계의 중재자 역할을 자연스럽게 맡으며, 상대의 감정을 세심하게 살피는 데 강점이 있습니다.",
+    3: "밝은 에너지로 분위기를 띄우는 역할을 하며, 다양한 사람과 폭넓게 교류하는 것을 즐깁니다.",
+    4: "소수의 관계를 오래, 깊게 유지하는 편이며, 신뢰가 쌓이기까지 시간이 필요한 유형입니다.",
+    5: "다양한 사람과의 자유로운 교류를 즐기며, 한 관계에 얽매이는 것을 부담스러워할 수 있습니다.",
+    6: "관계 안에서 돌보고 챙기는 역할을 자처하며, 책임감으로 관계를 오래 지탱하는 유형입니다.",
+    7: "깊이 있는 소수와의 관계를 선호하며, 피상적인 교류보다 진지한 대화에서 편안함을 느낍니다.",
+    8: "목표를 공유하는 관계에서 강한 결속력을 보이며, 실질적 성과로 신뢰를 쌓는 유형입니다.",
+    9: "폭넓은 포용력으로 다양한 관계를 아우르며, 갈등 상황에서 중재자 역할을 맡기도 합니다.",
+    11: "직관적으로 상대의 감정을 캐치하는 예민함이 있어, 깊은 정서적 교감을 나누는 관계에 강점이 있습니다.",
+    22: "관계를 장기적 관점에서 함께 무언가를 이뤄가는 파트너십으로 바라보는 경향이 있습니다.",
+    33: "타인을 돌보고 성장시키는 역할에서 관계의 의미를 찾으며, 헌신적인 관계를 맺는 유형입니다."
+  };
+
+  var RESULT_PENDING_TEXT = {
+    비겁: "지금은 스스로의 준비와 실력, 그리고 스스로의 판단에 집중할 때입니다. 시험이든 계약이든 결과는 외부 요인보다 그동안 쌓아온 것과 본인의 결단 자체가 좌우하는 흐름이니, 남과 비교하며 불안해하기보다 스스로 해온 노력과 판단을 믿는 것이 마음을 지키는 데 도움이 됩니다.",
+    식상: "차분히 준비한 것을 있는 그대로 풀어내면 되는 흐름입니다. 계약이나 협상 자리에서도 무리하게 애쓰기보다 평소의 논리와 화법을 편안하게 발휘하는 쪽이 오히려 좋은 결과로 이어지기 쉬운 시기입니다.",
+    재성: "실질적인 노력과 꼼꼼한 확인이 결과로 이어지기 좋은 흐름입니다. 계약서라면 조건을 한 번 더 확인하고, 시험이라면 준비를 손에서 놓지 않는 태도가 지금 이 시기의 기운과 맞습니다.",
+    관성: "질서와 원칙 속에서 정당하게 평가받거나, 정식 절차를 거쳐 매듭짓기 좋은 흐름입니다. 명리학적으로 관성의 기운은 긴장과 압박을 동반하지만, 그 무거움은 나쁜 신호가 아니라 이 도전이나 결정이 본인에게 그만큼 의미있다는 증거로 읽는 것이 맞습니다. 계약이라면 문서와 절차를 꼼꼼히 짚어보되, 지나친 걱정보다 원칙대로 진행하면 되는 시기입니다.",
+    인성: "그동안 받은 도움과 배움, 주변의 조언이 결실을 맺기 좋은 흐름입니다. 중요한 결정을 앞두고 있다면 신뢰할 수 있는 사람의 조언을 편하게 받아들이고, 결과를 기다리는 동안 스스로를 다그치기보다 다독이는 태도가 필요합니다."
+  };
+
+  /* ---------- 건강운: 오행 결핍/과다 기반 관리 포인트 ---------- */
+
+  var ELEMENT_ORGAN = {
+    목: "간·담(肝膽)과 근육·인대 계통",
+    화: "심장·소장(心小腸)과 혈액순환 계통",
+    토: "비장·위장(脾胃)과 소화·흡수 계통",
+    금: "폐·대장(肺大腸)과 호흡기·피부 계통",
+    수: "신장·방광(腎膀胱)과 생식·비뇨, 회복력 계통"
+  };
+
+  var HEALTH_DEFICIENT_TEXT = {
+    목: "사주 여덟 글자 중 목(木)의 기운이 가장 옅게 나타납니다. 목은 " + ELEMENT_ORGAN["목"] + "을 주관하는 기운으로, 이 기운이 부족하면 해독·대사와 유연성을 담당하는 기능이 쉽게 지치는 경향이 있습니다. 무리한 일정보다 충분한 휴식과 스트레칭, 녹색 채소 섭취가 균형을 채우는 데 도움이 됩니다.",
+    화: "사주 여덟 글자 중 화(火)의 기운이 가장 옅게 나타납니다. 화는 " + ELEMENT_ORGAN["화"] + "을 주관하는 기운으로, 이 기운이 부족하면 몸이 스스로 활동 속도를 늦추라는 신호를 자주 보내는 경향이 있습니다. 규칙적인 유산소 운동으로 순환을 도와주는 것이 균형에 유리합니다.",
+    토: "사주 여덟 글자 중 토(土)의 기운이 가장 옅게 나타납니다. 토는 " + ELEMENT_ORGAN["토"] + "을 주관하는 기운으로, 이 기운이 부족하면 소화기 계통이 예민하게 반응하는 경향이 있습니다. 규칙적인 식사 시간과 소화가 편한 음식 위주의 관리가 도움이 됩니다.",
+    금: "사주 여덟 글자 중 금(金)의 기운이 가장 옅게 나타납니다. 금은 " + ELEMENT_ORGAN["금"] + "을 주관하는 기운으로, 이 기운이 부족하면 환절기나 건조한 환경에 호흡기와 피부가 예민하게 반응하는 경향이 있습니다. 계절이 바뀌기 전 호흡기·피부 관리를 미리 챙기는 것이 도움이 됩니다.",
+    수: "사주 여덟 글자 중 수(水)의 기운이 가장 옅게 나타납니다. 수는 " + ELEMENT_ORGAN["수"] + "을 주관하는 기운으로, 이 기운이 부족하면 에너지 회복이 더딘 경향이 있습니다. 무리한 일정보다 충분한 수분 섭취와 수면 우선순위 확보가 도움이 됩니다."
+  };
+
+  var HEALTH_EXCESS_TEXT = {
+    목: "동시에 목(木)의 기운이 사주 전체에서 가장 강하게 나타납니다. 목이 과다하면 간·담 기능이 쉽게 항진되어 스트레스가 몸으로 먼저 나타나는 경향이 있으니, 화가 쌓였을 때 바로 풀어주는 운동이나 산책 루틴이 도움이 됩니다.",
+    화: "동시에 화(火)의 기운이 사주 전체에서 가장 강하게 나타납니다. 화가 과다하면 심장에 열이 몰리기 쉬워 급하게 몰아붙이는 습관이 몸에 부담을 줄 수 있으니, 의식적인 휴식 타이밍을 두는 것이 도움이 됩니다.",
+    토: "동시에 토(土)의 기운이 사주 전체에서 가장 강하게 나타납니다. 토가 과다하면 소화기에 정체가 생기기 쉬우니, 규칙적인 활동량과 가벼운 공복 시간을 두는 것이 순환에 도움이 됩니다.",
+    금: "동시에 금(金)의 기운이 사주 전체에서 가장 강하게 나타납니다. 금이 과다하면 호흡기와 피부가 긴장 상태에 놓이기 쉬우니, 깊은 호흡이나 명상 같은 이완 루틴이 도움이 됩니다.",
+    수: "동시에 수(水)의 기운이 사주 전체에서 가장 강하게 나타납니다. 수가 과다하면 생각이 많아져 신장·방광 쪽에 부담이 쌓이고 잠들기 어려운 경향이 있으니, 자기 전 루틴을 단순하게 정리하는 것이 회복에 도움이 됩니다."
+  };
+
+  var ZODIAC_HEALTH_AREA = {
+    양자리: "머리·두뇌 쪽에 신호가 먼저 오는 편입니다.",
+    황소자리: "목·갑상선 쪽 관리가 필요한 편입니다.",
+    쌍둥이자리: "폐·손·신경계 쪽에 신호가 먼저 오는 편입니다.",
+    게자리: "위·가슴 쪽 관리가 필요한 편입니다.",
+    사자자리: "심장·척추 쪽 관리가 필요한 편입니다.",
+    처녀자리: "장·소화기 쪽에 신호가 먼저 오는 편입니다.",
+    천칭자리: "신장·허리 쪽 관리가 필요한 편입니다.",
+    전갈자리: "생식기·배설기관 쪽 관리가 필요한 편입니다.",
+    사수자리: "간·허벅지·좌골신경 쪽에 신호가 먼저 오는 편입니다.",
+    염소자리: "뼈·관절·피부 쪽 관리가 필요한 편입니다.",
+    물병자리: "혈액순환·발목 쪽에 신호가 먼저 오는 편입니다.",
+    물고기자리: "발·림프계 쪽 관리가 필요한 편입니다."
+  };
+
+  var LIFE_PATH_HEALTH_HINT = {
+    1: "혼자 다 짊어지려는 습관이 체력 소진으로 이어지기 쉬우니, 도움을 요청하는 것도 관리의 일부로 여기는 것이 좋습니다.",
+    2: "타인의 감정에 과하게 이입해 스스로를 뒷전에 두는 경향이 있으니, 정서적 경계를 지키는 것이 곧 건강 관리가 됩니다.",
+    3: "감정 기복이 컨디션에 바로 반영되는 편이니, 창의적인 표현 활동을 통한 배출구를 마련하는 것이 도움이 됩니다.",
+    4: "일에 몰두하다 몸의 신호를 무시하는 경향이 있으니, 정기 검진을 루틴에 미리 포함시키는 것이 좋습니다.",
+    5: "변화를 좇다 생활 리듬이 흐트러지기 쉬우니, 최소한의 고정 루틴을 유지하는 것이 안전장치가 됩니다.",
+    6: "타인을 돌보느라 자신을 뒷전에 두는 경향이 있으니, 자기 자신을 먼저 채우는 것이 이기적인 일이 아님을 기억하는 것이 좋습니다.",
+    7: "생각이 많아 정신적 소진에 취약한 편이니, 혼자만의 회복 시간을 의식적으로 확보하는 것이 중요합니다.",
+    8: "성과에 대한 압박이 스트레스성 증상으로 나타나기 쉬우니, 목표와 별개로 쉬는 시간을 계획에 포함시키는 것이 좋습니다.",
+    9: "이상주의적 성향으로 몸보다 정신적 소진에 취약한 편이니, 완벽하지 않아도 괜찮다는 감각이 회복의 출발점이 됩니다.",
+    11: "예민한 직관이 정서적 과부하로 이어지기 쉬우니, 감정을 정기적으로 비워내는 루틴이 필요합니다.",
+    22: "큰 목표를 향한 압박감이 만성피로로 나타나기 쉬우니, 단계별 휴식을 계획에 포함시키는 것이 중요합니다.",
+    33: "타인을 위한 헌신이 스스로를 소진시키는 경향이 있으니, 돌봄에도 우선순위가 필요함을 기억하는 것이 좋습니다."
+  };
+
+  function getHealthProfile(elementCounts) {
+    var order = ELEMENT_ORDER.slice();
+    var sorted = order.sort(function (a, b) { return elementCounts[a] - elementCounts[b]; });
+    var deficient = sorted[0];
+    var excessCandidate = sorted[sorted.length - 1];
+    var excess = (excessCandidate !== deficient && elementCounts[excessCandidate] >= 3) ? excessCandidate : null;
+    return { deficient: deficient, excess: excess };
+  }
+
+  function getCurrentMonthTenGod(dayStemIdx) {
+    var now = new Date();
+    var mp = getMonthGanjiForYearMonth(now.getFullYear(), now.getMonth() + 1);
+    return getTenGod(dayStemIdx, mp.stemIdx);
+  }
+
+  var TEN_GOD_MONTHLY_ADVICE = {
+    비견: "협업보다 자기 페이스를 지키는 선택이 유리한 시기입니다. 남과 나누기보다 스스로 결정하고 실행하는 편이 결과가 좋습니다.",
+    겁재: "경쟁과 지출이 늘어나기 쉬운 시기입니다. 보증, 동업, 무리한 투자 결정은 특히 신중하게 검토해야 합니다.",
+    식신: "그동안 쌓아온 것을 여유 있게 풀어내기 좋은 시기입니다. 취미·창작·건강 관리처럼 자신을 위한 활동에 투자할 때 만족도가 높습니다.",
+    상관: "표현하고 싶은 욕구가 강해지는 시기입니다. 능력을 드러내는 데는 유리하나, 관계에서는 말의 완급을 조절하는 것이 필요합니다.",
+    편재: "규모 있는 자금 흐름이나 사업적 기회가 들어오기 좋은 시기입니다. 다만 편재 특유의 유동성 탓에 관리 소홀 시 새어나가기도 쉽습니다.",
+    정재: "꾸준한 수입과 관리에 집중하기 좋은 시기입니다. 계획했던 저축, 자산 정리, 실무적인 재무 결정을 실행하기에 알맞습니다.",
+    편관: "예상치 못한 압박이나 책임이 커질 수 있는 시기입니다. 정면 돌파가 필요한 결정이 생기기 쉬우니 미리 대비하는 것이 좋습니다.",
+    정관: "조직 내 평가나 신뢰가 쌓이기 좋은 시기입니다. 원칙을 지키고 맡은 역할에 충실한 태도가 좋은 결과로 이어집니다.",
+    편인: "새로운 관점이나 낯선 분야의 공부에 마음이 끌리는 시기입니다. 혼자만의 사색과 재충전의 시간이 특히 도움이 됩니다.",
+    정인: "배우고 채우는 데 유리한 시기입니다. 도움을 주는 사람이나 배움의 기회를 자연스럽게 만나기 쉬운 흐름입니다."
+  };
+
+  var TEN_GOD_MONTHLY_WEALTH = {
+    비견: "지출보다 저축에 무게를 두면 안정적인 달입니다.",
+    겁재: "동업, 보증, 지인과의 금전 거래는 특히 조심해야 하는 달입니다.",
+    식신: "취미나 자기계발에 쓰는 소비가 만족도를 높이는 달입니다.",
+    상관: "즉흥적인 지출이 늘 수 있어 미리 예산을 정해두면 좋은 달입니다.",
+    편재: "예상치 못한 수입이나 사업 기회가 들어올 수 있는 달입니다.",
+    정재: "계획했던 저축이나 자산 정리를 실행하기 좋은 달입니다.",
+    편관: "지출 통제가 필요한 긴장된 흐름으로, 큰 재정 결정은 미루는 편이 낫습니다.",
+    정관: "안정적인 수입 구조가 유지되는 무난한 달입니다.",
+    편인: "배움이나 자기계발에 대한 투자가 이후 자산으로 돌아오는 달입니다.",
+    정인: "주변의 도움으로 예상치 못한 이득을 볼 수 있는 달입니다."
+  };
+
+  var TEN_GOD_MONTHLY_RELATIONSHIP = {
+    비견: "동료·친구와의 관계에서 힘을 얻는 달이나, 경쟁심도 함께 커질 수 있습니다.",
+    겁재: "가까운 사이일수록 금전이나 자존심 문제로 마찰이 생기기 쉬운 달입니다.",
+    식신: "편안하고 즐거운 만남이 늘어나는, 관계에서 여유가 느껴지는 달입니다.",
+    상관: "할 말은 하게 되는 달이라 직설적인 발언에 유의해야 합니다.",
+    편재: "새로운 인맥이나 이해관계로 얽힌 관계가 생기기 쉬운 달입니다.",
+    정재: "신뢰를 바탕으로 한 관계가 더 단단해지는 달입니다.",
+    편관: "관계 안에서 긴장이나 갈등이 불거지기 쉬우니 감정적 대응은 피하는 것이 좋습니다.",
+    정관: "공식적인 자리, 조직 내 관계에서 신뢰를 쌓기 좋은 달입니다.",
+    편인: "혼자만의 시간이 필요해지는 달로, 관계보다 자기 자신에게 집중하고 싶어질 수 있습니다.",
+    정인: "가족이나 가까운 사람의 지지를 크게 느끼는 달입니다."
+  };
+
+  var TEN_GOD_MONTHLY_RESULTS = {
+    비견: "스스로 준비한 만큼 결과가 따라오는 흐름이라, 남과 비교하지 않는 것이 유리합니다.",
+    겁재: "경쟁이 치열해지는 흐름이니 방심하지 않고 끝까지 집중하는 것이 중요합니다.",
+    식신: "평소 실력을 편안하게 발휘하면 좋은 결과로 이어지기 쉬운 흐름입니다.",
+    상관: "순발력이 좋아지는 시기라 예상치 못한 질문에도 유연하게 대응할 수 있습니다.",
+    편재: "계약이나 협상에서 유리한 조건을 얻어낼 가능성이 높은 흐름입니다.",
+    정재: "꼼꼼한 확인이 좋은 결과로 이어지는 흐름이니 서두르지 않는 것이 좋습니다.",
+    편관: "긴장감이 큰 만큼 결과에 대한 압박도 크게 느껴지지만, 정면 돌파가 필요한 시기입니다.",
+    정관: "정당한 절차와 원칙을 따를 때 좋은 평가를 받기 쉬운 흐름입니다.",
+    편인: "기존과 다른 접근이 오히려 좋은 결과로 이어질 수 있는 흐름입니다.",
+    정인: "주변의 도움과 조언이 결과에 긍정적으로 작용하는 흐름입니다."
+  };
+
+  function getPureYearPillar(year) {
+    // 절기 보정 없이 순수하게 "그 해"의 간지만 얻기 위해 안전한 연중 날짜(6/15)를 사용
+    return getYearPillar(year, 6, 15);
+  }
+
+  function getMonthGanjiForYearMonth(year, month) {
+    var yp = getPureYearPillar(year);
+    // 월 경계 근처 오차를 피하기 위해 안전한 월중 날짜(15일)를 사용
+    return getMonthPillar(yp.stemIdx, month, 15);
+  }
+
+
+  function elementRelation(a, b) {
+    if (a === b) return "same";
+    if (GENERATES[a] === b) return "a_feeds_b";
+    if (GENERATES[b] === a) return "b_feeds_a";
+    if (OVERCOMES[a] === b) return "a_curbs_b";
+    if (OVERCOMES[b] === a) return "b_curbs_a";
+    return "neutral";
+  }
+
+  var RELATION_TEXT = {
+    same: function (a, b) { return "일간의 " + ELEMENT_NAME_FULL[a] + " 기운과 별자리가 상징하는 " + ELEMENT_NAME_FULL[b] + " 기운이 동일한 성질로 중첩됩니다. 오행학에서 동일 기운의 중첩은 비화(比和)로 분류되며, 특정 방향으로의 쏠림이 강화되는 구조입니다. 이 경우 편중된 기운을 분산시킬 별도의 통로를 확보하는 것이 균형에 유리합니다."; },
+    a_feeds_b: function (a, b) { return "일간의 " + ELEMENT_NAME_FULL[a] + "이 별자리가 상징하는 " + ELEMENT_NAME_FULL[b] + "을 생(生)하는 구조입니다. 이는 타고난 기질이 외적으로 표현되는 성향을 증폭시키는 배열로, 내면의 기질보다 겉으로 드러나는 인상이 강하게 형성되는 경향이 있습니다."; },
+    b_feeds_a: function (a, b) { return "별자리가 상징하는 " + ELEMENT_NAME_FULL[b] + "이 일간의 " + ELEMENT_NAME_FULL[a] + "을 생(生)하는 구조입니다. 외부의 기운으로부터 지속적인 지원을 받는 배열로, 환경적 조건이 갖춰졌을 때 잠재력이 발현되기 쉬운 구조입니다."; },
+    a_curbs_b: function (a, b) { return "일간의 " + ELEMENT_NAME_FULL[a] + "이 별자리가 상징하는 " + ELEMENT_NAME_FULL[b] + "을 극(剋)하는 구조입니다. 외적으로 드러나는 인상보다 내부에서 상황을 통제하고 조율하려는 힘이 우세하게 작용하는 배열입니다."; },
+    b_curbs_a: function (a, b) { return "별자리가 상징하는 " + ELEMENT_NAME_FULL[b] + "이 일간의 " + ELEMENT_NAME_FULL[a] + "을 극(剋)하는 구조입니다. 외부 환경과의 마찰이 잦은 배열이나, 명리학적으로 이러한 극제(剋制)는 단련과 성장의 계기로 작용하는 경우가 많습니다."; },
+    neutral: function (a, b) { return "일간의 " + ELEMENT_NAME_FULL[a] + "과 별자리가 상징하는 " + ELEMENT_NAME_FULL[b] + "이 직접적인 생극(生剋) 관계를 형성하지 않습니다. 두 기운이 독립적으로 병존하는 배열로, 상황에 따라 필요한 기운을 선택적으로 발현시키는 유연성이 특징입니다."; }
+  };
+
+  var REVERSE_GENERATES = { 화: "목", 토: "화", 금: "토", 수: "금", 목: "수" }; // 인성 방향
+
+  function getElementCounts(yearP, monthP, dayP, hourP) {
+    var counts = { 목: 0, 화: 0, 토: 0, 금: 0, 수: 0 };
+    function add(stemIdx, branchIdx) {
+      counts[STEM_ELEMENT[stemIdx]]++;
+      counts[BRANCH_ELEMENT[branchIdx]]++;
+    }
+    add(yearP.stemIdx, yearP.branchIdx);
+    add(monthP.stemIdx, monthP.branchIdx);
+    add(dayP.stemIdx, dayP.branchIdx);
+    if (hourP) add(hourP.stemIdx, hourP.branchIdx);
+    return counts;
+  }
+
+  function getDominantElements(counts) {
+    var order = ["목", "화", "토", "금", "수"];
+    var sorted = order.slice().sort(function (a, b) { return counts[b] - counts[a]; });
+    var top1 = sorted[0], top2 = sorted[1];
+    var isDual = counts[top1] > 0 && counts[top2] > 0 && (counts[top1] - counts[top2] <= 1);
+    return { top1: top1, top2: top2, isDual: isDual };
+  }
+
+  function getDayMasterStrength(dayElement, yearP, monthP, dayP, hourP) {
+    // 월지(月支)에 2배 가중치를 두어 판단하는 간이 신강/신약 판정
+    var supportElements = { 목: 0, 화: 0, 토: 0, 금: 0, 수: 0 }; // 자기 자신 표시용, 아래서 판별
+    var slots = [
+      { el: STEM_ELEMENT[yearP.stemIdx], w: 1 },
+      { el: BRANCH_ELEMENT[yearP.branchIdx], w: 1 },
+      { el: STEM_ELEMENT[monthP.stemIdx], w: 1 },
+      { el: BRANCH_ELEMENT[monthP.branchIdx], w: 2 }, // 월지 가중치 2배
+      { el: BRANCH_ELEMENT[dayP.branchIdx], w: 1 }
+    ];
+    if (hourP) {
+      slots.push({ el: STEM_ELEMENT[hourP.stemIdx], w: 1 });
+      slots.push({ el: BRANCH_ELEMENT[hourP.branchIdx], w: 1 });
+    }
+    var supportWeight = 0, totalWeight = 0;
+    var generatorOfDay = REVERSE_GENERATES[dayElement];
+    slots.forEach(function (s) {
+      totalWeight += s.w;
+      if (s.el === dayElement || s.el === generatorOfDay) supportWeight += s.w;
+    });
+    var strength = supportWeight >= totalWeight / 2 ? "신강" : "신약";
+    return { strength: strength, supportWeight: supportWeight, totalWeight: totalWeight };
+  }
+
+  function getUsefulGod(dayElement, strength) {
+    // 간이 용신 판단: 신강하면 재성/관성 방향(설기), 신약하면 인성 방향(생조)으로 균형을 잡는다는 통상적 원칙의 단순화 버전
+    if (strength === "신강") return OVERCOMES[dayElement]; // 재성 방향
+    return REVERSE_GENERATES[dayElement]; // 인성 방향
+  }
+
+  var ELEMENT_ORDER = ["목", "화", "토", "금", "수"];
+
+  function comboKey(a, b) {
+    var ia = ELEMENT_ORDER.indexOf(a), ib = ELEMENT_ORDER.indexOf(b);
+    return ia <= ib ? a + b : b + a;
+  }
+
+  var COMBO_NOTE = {
+    목화: "목과 화가 함께 강해, 아이디어를 곧바로 실행하고 확산시키는 추진력이 두드러집니다.",
+    목토: "목과 토가 함께 강해, 성장을 이끌고 지속시키는 힘이 두드러지며, 특히 사람을 키우고 가르치는 교육·인재양성 분야에서 강점이 극대화됩니다.",
+    목금: "목과 금이 함께 강해, 시작하려는 힘과 마무리 지으려는 힘이 팽팽하게 공존하는 유형입니다.",
+    목수: "목과 수가 함께 강해, 사유와 성장이 결합된 학문적·연구적 성향이 두드러집니다.",
+    화토: "화와 토가 함께 강해, 표현력과 신뢰를 함께 갖춘 조직 리더십형에 가깝습니다.",
+    화금: "화와 금이 함께 강해, 발산하는 힘과 정교하게 마무리하는 힘이 공존해 완성도 높은 결과물을 만들어냅니다.",
+    화수: "화와 수가 함께 강해, 표현력과 사유가 공존하며 감정과 논리를 함께 다루는 유형입니다.",
+    토금: "토와 금이 함께 강해, 신뢰와 원칙을 겸비한 관리·운영형에 가깝습니다.",
+    토수: "토와 수가 함께 강해, 안정과 유연함이 공존하며 변화 속에서도 중심을 잃지 않는 유형입니다.",
+    금수: "금과 수가 함께 강해, 결단력과 사유가 공존하며 정보를 정밀하게 다루는 데 강점을 보입니다."
+  };
+
+
+  function computeChart(input) {
+    var year = input.year, month = input.month, day = input.day, hour = input.hour, hasTime = input.hasTime;
+    var yearP = getYearPillar(year, month, day);
+    var monthP = getMonthPillar(yearP.stemIdx, month, day);
+    var dayP = getDayPillar(year, month, day);
+    var hourP = hasTime ? getHourPillar(dayP.stemIdx, hour) : null;
+    var zodiac = getZodiac(month, day);
+    var lifePath = getLifePathNumber(year, month, day);
+    var dayElement = STEM_ELEMENT[dayP.stemIdx];
+    var zodiacElementMapped = ZODIAC_ELEMENT_KO[zodiac.element];
+    var relation = elementRelation(dayElement, zodiacElementMapped);
+
+    var dayBranchElement = BRANCH_ELEMENT[dayP.branchIdx];
+    var spouseRelation = elementRelation(dayElement, dayBranchElement);
+
+    var yearTenGod = getTenGod(dayP.stemIdx, yearP.stemIdx);
+    var monthTenGod = getTenGod(dayP.stemIdx, monthP.stemIdx);
+    var hourTenGod = hourP ? getTenGod(dayP.stemIdx, hourP.stemIdx) : null;
+
+    var elementCounts = getElementCounts(yearP, monthP, dayP, hourP);
+    var dominant = getDominantElements(elementCounts);
+    var strengthInfo = getDayMasterStrength(dayElement, yearP, monthP, dayP, hourP);
+    var usefulGod = getUsefulGod(dayElement, strengthInfo.strength);
+
+    return {
+      yearP: yearP, monthP: monthP, dayP: dayP, hourP: hourP,
+      zodiac: zodiac, lifePath: lifePath, dayElement: dayElement,
+      zodiacElementMapped: zodiacElementMapped, relation: relation, hasTime: hasTime,
+      dayBranchElement: dayBranchElement, spouseRelation: spouseRelation,
+      yearTenGod: yearTenGod, monthTenGod: monthTenGod, hourTenGod: hourTenGod,
+      elementCounts: elementCounts, dominant: dominant,
+      strength: strengthInfo.strength, usefulGod: usefulGod
+    };
+  }
+
+  /* ---------- SVG 명반 ---------- */
+
+  function polygonPoints(cx, cy, r, n, rotateDeg) {
+    if (rotateDeg === undefined) rotateDeg = -90;
+    var pts = [];
+    var sides = Math.max(3, Math.min(n, 40));
+    for (var i = 0; i < sides; i++) {
+      var angle = ((360 / sides) * i + rotateDeg) * (Math.PI / 180);
+      pts.push((cx + r * Math.cos(angle)) + "," + (cy + r * Math.sin(angle)));
+    }
+    return pts.join(" ");
+  }
+
+  function pillarSealSVG(x, y, stemIdx, branchIdx, label, emphasize, unknown) {
+    var w = emphasize ? 58 : 50;
+    var h = emphasize ? 70 : 60;
+    var tx = x - w / 2, ty = y - h / 2;
+    if (unknown) {
+      return '<g transform="translate(' + tx + ',' + ty + ')">' +
+        '<rect width="' + w + '" height="' + h + '" rx="8" fill="none" stroke="#6B5B95" stroke-dasharray="4 4" stroke-width="1.5" opacity="0.6"/>' +
+        '<text x="' + (w / 2) + '" y="' + (h / 2 + 6) + '" text-anchor="middle" font-size="20" fill="#6B5B95" opacity="0.7" font-family="Noto Serif KR, serif">?</text>' +
+        '<text x="' + (w / 2) + '" y="' + (h + 16) + '" text-anchor="middle" font-size="11" fill="#8B7FC7" font-family="Noto Sans KR, sans-serif">' + label + '</text>' +
+        '</g>';
+    }
+    var stemColor = ELEMENT_COLOR[STEM_ELEMENT[stemIdx]];
+    var branchColor = ELEMENT_COLOR[BRANCH_ELEMENT[branchIdx]];
+    return '<g transform="translate(' + tx + ',' + ty + ')">' +
+      '<rect width="' + w + '" height="' + h + '" rx="6" fill="#A23B3B" stroke="' + (emphasize ? "#C4A155" : "#5C2020") + '" stroke-width="' + (emphasize ? 2.5 : 1.5) + '"/>' +
+      '<rect x="3" y="3" width="' + (w - 6) + '" height="' + (h - 6) + '" rx="4" fill="none" stroke="#C4A155" stroke-width="0.6" opacity="0.5"/>' +
+      '<text x="' + (w / 2) + '" y="' + (h * 0.42) + '" text-anchor="middle" font-size="' + (emphasize ? 26 : 22) + '" fill="#F3E9D2" font-family="Noto Serif KR, serif" font-weight="600">' + STEM_HANJA[stemIdx] + '</text>' +
+      '<text x="' + (w / 2) + '" y="' + (h * 0.82) + '" text-anchor="middle" font-size="' + (emphasize ? 26 : 22) + '" fill="#F3E9D2" font-family="Noto Serif KR, serif" font-weight="600">' + BRANCH_HANJA[branchIdx] + '</text>' +
+      '<circle cx="8" cy="' + (h - 8) + '" r="3.5" fill="' + stemColor + '"/>' +
+      '<circle cx="' + (w - 8) + '" cy="' + (h - 8) + '" r="3.5" fill="' + branchColor + '"/>' +
+      '<text x="' + (w / 2) + '" y="' + (h + 16) + '" text-anchor="middle" font-size="11" fill="#C4A155" font-family="Noto Sans KR, sans-serif">' + label + '</text>' +
+      '</g>';
+  }
+
+  function destinyChartSVG(chart) {
+    var yearP = chart.yearP, monthP = chart.monthP, dayP = chart.dayP, hourP = chart.hourP;
+    var zodiac = chart.zodiac, lifePath = chart.lifePath;
+    var cx = 200, cy = 200;
+    var outerR = 172, tickR = 190, midR = 128, coreR = 56;
+
+    var zodiacGlyphs = ZODIAC_ORDER_FROM_ARIES.map(function (name, i) {
+      var angle = (-90 + i * 30) * (Math.PI / 180);
+      var x = cx + outerR * Math.cos(angle);
+      var y = cy + outerR * Math.sin(angle);
+      var isMine = name === zodiac.name;
+      return '<text x="' + x + '" y="' + (y + 7) + '" text-anchor="middle" font-size="' + (isMine ? 26 : 15) + '" fill="' + (isMine ? "#E8C874" : "#7A72A8") + '" opacity="' + (isMine ? 1 : 0.65) + '" ' + (isMine ? 'filter="url(#glow)"' : '') + ' font-family="serif">' + ZODIAC_SYMBOL[name] + '</text>';
+    }).join("");
+
+    var hourSeal = hourP
+      ? pillarSealSVG(cx - midR, cy, hourP.stemIdx, hourP.branchIdx, "시주", false, false)
+      : pillarSealSVG(cx - midR, cy, 0, 0, "시주(미상)", false, true);
+
+    return '<svg viewBox="0 0 400 430" class="chart-svg" role="img" aria-label="삼원 명반">' +
+      '<defs>' +
+        '<radialGradient id="bgGrad" cx="50%" cy="42%" r="75%">' +
+          '<stop offset="0%" stop-color="#1E1A3C"/><stop offset="55%" stop-color="#141130"/><stop offset="100%" stop-color="#0B0920"/>' +
+        '</radialGradient>' +
+        '<radialGradient id="coreGrad" cx="50%" cy="40%" r="70%">' +
+          '<stop offset="0%" stop-color="#2A2456"/><stop offset="100%" stop-color="#120F28"/>' +
+        '</radialGradient>' +
+        '<filter id="glow" x="-60%" y="-60%" width="220%" height="220%">' +
+          '<feGaussianBlur stdDeviation="3.2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>' +
+        '</filter>' +
+      '</defs>' +
+      '<circle cx="' + cx + '" cy="' + cy + '" r="196" fill="url(#bgGrad)"/>' +
+      '<circle cx="' + cx + '" cy="' + cy + '" r="' + tickR + '" fill="none" stroke="#3A3466" stroke-width="1" opacity="0.6"/>' +
+      '<circle cx="' + cx + '" cy="' + cy + '" r="' + (outerR - 8) + '" fill="none" stroke="#3A3466" stroke-width="0.6" opacity="0.4" stroke-dasharray="2 5"/>' +
+      zodiacGlyphs +
+      pillarSealSVG(cx, cy - midR, yearP.stemIdx, yearP.branchIdx, "년주", false, false) +
+      pillarSealSVG(cx + midR, cy, monthP.stemIdx, monthP.branchIdx, "월주", false, false) +
+      pillarSealSVG(cx, cy + midR, dayP.stemIdx, dayP.branchIdx, "일주", true, false) +
+      hourSeal +
+      '<circle cx="' + cx + '" cy="' + cy + '" r="' + (coreR + 14) + '" fill="url(#coreGrad)" stroke="#3A3466" stroke-width="1"/>' +
+      '<polygon points="' + polygonPoints(cx, cy, coreR, lifePath) + '" fill="none" stroke="#8B7FC7" stroke-width="1.3" opacity="0.85"/>' +
+      '<polygon points="' + polygonPoints(cx, cy, coreR - 12, lifePath, -90 + 180 / Math.max(lifePath, 3)) + '" fill="none" stroke="#C4A155" stroke-width="0.7" opacity="0.55"/>' +
+      '<text x="' + cx + '" y="' + (cy + 13) + '" text-anchor="middle" font-size="34" font-weight="700" fill="#F3E9D2" font-family="Noto Serif KR, serif">' + lifePath + '</text>' +
+      '<text x="' + cx + '" y="' + (cy + 34) + '" text-anchor="middle" font-size="10.5" fill="#8B7FC7" letter-spacing="1" font-family="Noto Sans KR, sans-serif">생명수</text>' +
+      '<text x="' + cx + '" y="418" text-anchor="middle" font-size="12" fill="#5F5896" font-family="Noto Sans KR, sans-serif" letter-spacing="2">三 元 盤</text>' +
+      '</svg>';
+  }
+
+  /* ---------- 결과 카드 & 종합 리딩 ---------- */
+
+  function resultCardsHTML(chart) {
+    var yearP = chart.yearP, monthP = chart.monthP, dayP = chart.dayP, hourP = chart.hourP;
+    var zodiac = chart.zodiac, lifePath = chart.lifePath, dayElement = chart.dayElement, hasTime = chart.hasTime;
+    var dayAnimal = BRANCH_ANIMAL[dayP.branchIdx];
+    var hourText = (hasTime && hourP) ? (STEM_KO[hourP.stemIdx] + BRANCH_KO[hourP.branchIdx]) : "미상";
+
+    return '<div class="cards-grid">' +
+      '<div class="info-card" style="--accent:' + ELEMENT_COLOR[dayElement] + '">' +
+        '<div class="info-card-title">사주 · 일간(日干)</div>' +
+        '<div class="card-hero"><span class="hero-hanja">' + STEM_HANJA[dayP.stemIdx] + BRANCH_HANJA[dayP.branchIdx] + '</span>' +
+        '<span class="hero-sub">' + STEM_KO[dayP.stemIdx] + BRANCH_KO[dayP.branchIdx] + '일 · ' + dayAnimal + '띠 결의 하루</span></div>' +
+        '<p class="card-desc">일간(日干)은 사주 여덟 글자 중 자기 자신을 나타내는 기준점입니다. ' + ELEMENT_PERSONA[dayElement] + '</p>' +
+        '<div class="pillar-row">' +
+        '<span>년주 ' + STEM_KO[yearP.stemIdx] + BRANCH_KO[yearP.branchIdx] + ' · ' + chart.yearTenGod + '</span>' +
+        '<span>월주 ' + STEM_KO[monthP.stemIdx] + BRANCH_KO[monthP.branchIdx] + ' · ' + chart.monthTenGod + '</span>' +
+        '<span>시주 ' + (hasTime && hourP ? (STEM_KO[hourP.stemIdx] + BRANCH_KO[hourP.branchIdx] + ' · ' + chart.hourTenGod) : "미상") + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="info-card" style="--accent:#8B7FC7">' +
+        '<div class="info-card-title">서양 점성술 · 태양별자리</div>' +
+        '<div class="card-hero"><span class="hero-symbol">' + zodiac.symbol + '</span>' +
+        '<span class="hero-sub">' + zodiac.name + ' · ' + zodiac.element + '의 별자리</span></div>' +
+        '<p class="card-desc">' + ZODIAC_PERSONA[zodiac.name] + '</p>' +
+      '</div>' +
+      '<div class="info-card" style="--accent:#C4A155">' +
+        '<div class="info-card-title">수비학 · 생명수</div>' +
+        '<div class="card-hero"><span class="hero-number">' + lifePath + '</span>' +
+        '<span class="hero-sub">Life Path ' + lifePath + '</span></div>' +
+        '<p class="card-desc">' + LIFE_PATH_MEANING[lifePath] + '</p>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function synthesisHTML(chart) {
+    var relationText = RELATION_TEXT[chart.relation](chart.dayElement, chart.zodiacElementMapped);
+    return '<div class="synthesis">' +
+      '<div class="synthesis-title">세 갈래를 하나로 — 종합 리딩</div>' +
+      '<p>' + relationText + '</p>' +
+      '<p>여기에 생명수 ' + chart.lifePath + '의 결이 더해집니다. ' + LIFE_PATH_MEANING[chart.lifePath] + ' ' + chart.zodiac.name + '의 기질이 방향을 정하고, 일간의 오행이 그 방향으로 나아가는 방식을 결정하며, 생명수는 그 여정에서 반복적으로 마주할 주제를 알려줍니다.</p>' +
+    '</div>';
+  }
+
+  /* ---------- 상세풀이 렌더링 ---------- */
+
+  function monthlyForecastHTML(chart, selectedYear) {
+    var thisYear = new Date().getFullYear();
+    var options = "";
+    for (var y = thisYear; y <= thisYear + 2; y++) {
+      options += '<option value="' + y + '"' + (y === selectedYear ? " selected" : "") + '>' + y + '년' + (y === thisYear ? "(올해)" : "") + '</option>';
+    }
+
+    var rows = "";
+    for (var m = 1; m <= 12; m++) {
+      var mp = getMonthGanjiForYearMonth(selectedYear, m);
+      var ganzhi = STEM_KO[mp.stemIdx] + BRANCH_KO[mp.branchIdx];
+      var tenGod = getTenGod(chart.dayP.stemIdx, mp.stemIdx);
+      var animal = BRANCH_ANIMAL[mp.branchIdx];
+      rows += '<div class="month-row">' +
+        '<div class="month-row-head">' +
+          '<span class="month-num">' + m + '월</span>' +
+          '<span class="ganzhi">' + ganzhi + '월 · ' + animal + '</span>' +
+          '<span class="tengod-badge">' + tenGod + '</span>' +
+        '</div>' +
+        '<p>' + TEN_GOD_MONTHLY_ADVICE[tenGod] + '</p>' +
+        '<div class="month-subline"><b>재물</b>' + TEN_GOD_MONTHLY_WEALTH[tenGod] + '</div>' +
+        '<div class="month-subline"><b>관계</b>' + TEN_GOD_MONTHLY_RELATIONSHIP[tenGod] + '</div>' +
+        '<div class="month-subline"><b>결과·계약</b>' + TEN_GOD_MONTHLY_RESULTS[tenGod] + '</div>' +
+      '</div>';
+    }
+
+    return '<div class="detail-card" style="--accent:#8B7FC7">' +
+      '<div class="detail-card-title">세운(歲運) · 월별 상세 <span class="badge">' + selectedYear + '년</span></div>' +
+      '<div class="year-select-row"><span>연도 선택</span><select id="yearSelect">' + options + '</select></div>' +
+      '<div class="month-list" id="monthList">' + rows + '</div>' +
+    '</div>';
+  }
+
+  var ZODIAC_KEYWORD = {
+    양자리: "개척자적 추진력", 황소자리: "안정 지향의 지속력", 쌍둥이자리: "다면적 소통력",
+    게자리: "정서적 보호 본능", 사자자리: "표현력과 리더십", 처녀자리: "정교한 분석력",
+    천칭자리: "균형과 조율 감각", 전갈자리: "깊이 있는 몰입력", 사수자리: "확장 지향의 낙관성",
+    염소자리: "단계적 축적력", 물병자리: "독자적 개혁성", 물고기자리: "경계 없는 공감력"
+  };
+
+  var LIFE_PATH_KEYWORD = {
+    1: "주도와 시작의 힘", 2: "조율과 협력의 감각", 3: "표현과 창조의 에너지", 4: "성실과 구조화 능력",
+    5: "자유와 확장의 기질", 6: "책임과 돌봄의 태도", 7: "탐구와 통찰의 깊이", 8: "실행력과 성취욕",
+    9: "포용과 완결의 시야", 11: "예민한 직관", 22: "이상의 현실화 역량", 33: "헌신적 가르침의 힘"
+  };
+
+  function ohaengAnalysisHTML(chart) {
+    var counts = chart.elementCounts;
+    var maxCount = Math.max(1, counts.목, counts.화, counts.토, counts.금, counts.수);
+    var order = ["목", "화", "토", "금", "수"];
+    var bars = order.map(function (el) {
+      var pct = Math.round((counts[el] / maxCount) * 100);
+      return '<div class="element-bar-row">' +
+        '<span class="element-bar-label" style="color:' + ELEMENT_COLOR[el] + '">' + el + '</span>' +
+        '<div class="element-bar-track"><div class="element-bar-fill" style="width:' + pct + '%;background:' + ELEMENT_COLOR[el] + '"></div></div>' +
+        '<span class="element-bar-count">' + counts[el] + '</span>' +
+      '</div>';
+    }).join("");
+
+    var dom = chart.dominant;
+    var domText = dom.isDual
+      ? (ELEMENT_NAME_FULL[dom.top1] + '과 ' + ELEMENT_NAME_FULL[dom.top2] + '의 기운이 함께 뚜렷하게 강합니다.')
+      : (ELEMENT_NAME_FULL[dom.top1] + '의 기운이 가장 뚜렷하게 강합니다.');
+
+    var strengthText = chart.strength === "신강"
+      ? "일간을 지지하는 비겁·인성의 기운이 절반 이상을 차지하는 신강(身强) 사주입니다. 스스로 결정하고 밀고 나가는 추진력이 강합니다."
+      : "일간을 지지하는 기운이 절반에 못 미치는 신약(身弱) 사주입니다. 주변의 지지나 스스로 채워야 할 부분이 있는 구조입니다.";
+
+    return '<div class="detail-card" style="--accent:#C4A155">' +
+      '<div class="detail-card-title">사주 원국 오행 분석 <span class="badge">8글자 기준</span></div>' +
+      bars +
+      '<div class="strength-badge-row">' +
+        '<span class="strength-badge">' + chart.strength + '</span>' +
+        '<span class="strength-badge">용신(추정) · ' + ELEMENT_NAME_FULL[chart.usefulGod] + '</span>' +
+      '</div>' +
+      '<p>' + domText + ' ' + strengthText + '</p>' +
+      '<p style="margin-top:8px;">용신은 사주 전체의 균형을 잡아주는 방향으로, 신강할 때는 재성·관성 방향으로 힘을 덜어내고, 신약할 때는 인성 방향으로 힘을 채우는 것이 통상적인 원칙입니다. 이 분석이 아래 재물운·직업운·인간관계운의 근거가 됩니다.</p>' +
+    '</div>';
+  }
+
+  function unlockedDetailHTML(chart, selectedYear) {
+    var wealthElement = OVERCOMES[chart.dayElement]; // 재성
+    var wealthElementCount = chart.elementCounts[wealthElement];
+    var wealthKey = getWealthStrengthKey(chart.strength, wealthElementCount);
+    var wealthText = WEALTH_STRENGTH_NOTE[wealthKey] + ' ' + INVEST_GUIDE[chart.dayElement];
+    var investText = LIFE_PATH_INVEST_HINT[chart.lifePath];
+
+    var dom = chart.dominant;
+    var jobList = JOB_CATEGORIES[dom.top1].slice();
+    var careerText;
+    if (dom.isDual) {
+      var extra = JOB_CATEGORIES[dom.top2].slice(0, 3);
+      extra.forEach(function (j) { if (jobList.indexOf(j) === -1) jobList.push(j); });
+      careerText = COMBO_NOTE[comboKey(dom.top1, dom.top2)];
+    } else {
+      careerText = ELEMENT_NAME_FULL[dom.top1] + '이 사주 전체에서 가장 강하게 나타나, 이 기운이 성향과 적성을 주도합니다.';
+    }
+    careerText += ' 일간(' + ELEMENT_NAME_FULL[chart.dayElement] + ') 기준으로는 ' + CAREER_TEXT[chart.dayElement];
+    var jobChips = jobList.slice(0, 8).map(function (j) {
+      return '<span class="job-chip">' + j + '</span>';
+    }).join("");
+
+    var relGroup = TEN_GOD_GROUP[chart.monthTenGod];
+    var relationshipText = RELATIONSHIP_TEXT[relGroup] + ' ' + LIFE_PATH_RELATIONSHIP_HINT[chart.lifePath];
+
+    var pendingTenGod = getCurrentMonthTenGod(chart.dayP.stemIdx);
+    var pendingGroup = TEN_GOD_GROUP[pendingTenGod];
+    var pendingText = RESULT_PENDING_TEXT[pendingGroup];
+
+    var healthProfile = getHealthProfile(chart.elementCounts);
+    var healthText = HEALTH_DEFICIENT_TEXT[healthProfile.deficient];
+    if (healthProfile.excess) healthText += ' ' + HEALTH_EXCESS_TEXT[healthProfile.excess];
+    var healthZodiacText = ZODIAC_HEALTH_AREA[chart.zodiac.name];
+    var healthLifePathText = LIFE_PATH_HEALTH_HINT[chart.lifePath];
+
+    return '<div class="beta-badge">베타 · 무료 공개</div>' +
+
+      ohaengAnalysisHTML(chart) +
+
+      '<div class="detail-card" style="--accent:' + ELEMENT_COLOR[chart.dayElement] + '">' +
+        '<div class="detail-card-title">재물운</div><p>' + wealthText + '</p>' +
+        '<div class="subcard-label">부동산·주식 등 투자처 적합도</div><p>' + investText + '</p>' +
+      '</div>' +
+
+      '<div class="detail-card" style="--accent:#C4A155">' +
+        '<div class="detail-card-title">직업운</div><p>' + careerText + '</p>' +
+        '<div class="subcard-label">구체적으로 어울리는 직업군</div>' +
+        '<div class="job-chip-row">' + jobChips + '</div>' +
+      '</div>' +
+
+      '<div class="detail-card" style="--accent:#8B7FC7">' +
+        '<div class="detail-card-title">인간관계운</div><p>' + relationshipText + '</p>' +
+      '</div>' +
+
+      '<div class="detail-card" style="--accent:#A23B3B">' +
+        '<div class="detail-card-title">배우자운</div><p>' + SPOUSE_TEXT[chart.spouseRelation] + '</p>' +
+      '</div>' +
+
+      '<div class="detail-card" style="--accent:' + ELEMENT_COLOR[healthProfile.deficient] + '">' +
+        '<div class="detail-card-title">건강운</div><p>' + healthText + '</p>' +
+        '<div class="subcard-label">' + chart.zodiac.name + ' 참고</div><p>' + healthZodiacText + '</p>' +
+        '<div class="subcard-label">생명수 ' + chart.lifePath + ' 참고</div><p>' + healthLifePathText + '</p>' +
+        '<p style="margin-top:10px; font-size:12px; color:#8B849E;">이 콘텐츠는 전통 명리·점성술 이론에 근거한 참고용 정보이며, 의학적 진단이나 치료를 대체하지 않습니다. 건강 이상이 의심되면 반드시 전문의와 상담하세요.</p>' +
+      '</div>' +
+
+      '<div class="detail-card" style="--accent:#5B8C5A">' +
+        '<div class="detail-card-title">시험·소송·계약 등 중요한 결정을 앞두고 있다면</div>' +
+        '<p>' + pendingText + '</p>' +
+        '<p style="margin-top:10px;">사주와 점성술, 수비학은 정해진 결말을 미리 맞히는 도구가 아니라, 지금 이 시기를 어떤 태도로 통과할지 알려주는 도구에 가깝습니다. 시험 결과든, 소송의 향방이든, 계약이나 중요한 결정의 순간이든, 기다리는 마음이 무겁다면 이 풀이가 작은 안심이 되길 바랍니다.</p>' +
+      '</div>' +
+
+      '<div class="detail-card" style="--accent:#4A6FA5">' +
+        '<div class="detail-card-title">참고 · 별자리 &amp; 생명수</div>' +
+        '<p>사주 오행 분석이 이 풀이의 중심이며, 별자리와 생명수는 그 안에서 드러나지 않는 결을 보완하는 참고 지표입니다.</p>' +
+        '<div class="subcard-label">' + chart.zodiac.name + ' (' + chart.zodiac.symbol + ')</div>' +
+        '<p>핵심 기질: ' + ZODIAC_KEYWORD[chart.zodiac.name] + '</p>' +
+        '<div class="subcard-label">생명수 ' + chart.lifePath + '</div>' +
+        '<p>핵심 테마: ' + LIFE_PATH_KEYWORD[chart.lifePath] + '</p>' +
+      '</div>' +
+
+      '<div id="yearlyCardWrap">' + monthlyForecastHTML(chart, selectedYear) + '</div>';
+  }
+
+  function detailSectionHTML(chart, selectedYear) {
+    return '<div class="detail-section-title">상세 풀이</div>' +
+      '<p class="detail-section-sub">사주 오행 분석 · 재물운 · 직업운 · 인간관계운 · 배우자운 · 건강운 · 시험·소송·계약운 · 세운(歲運) 월별 분석</p>' +
+      unlockedDetailHTML(chart, selectedYear);
+  }
+
+  function wireDetailEvents(chart) {
+    var yearSelect = document.getElementById("yearSelect");
+    if (yearSelect) {
+      yearSelect.addEventListener("change", function () {
+        var y = Number(yearSelect.value);
+        document.getElementById("yearlyCardWrap").innerHTML = monthlyForecastHTML(chart, y);
+        wireDetailEvents(chart); // re-wire new select element
+      });
+    }
+  }
+
+  /* ---------- 후기 남기기 ---------- */
+
+  function hasReviewed() {
+    try { return localStorage.getItem("samwonban_reviewed") === "true"; } catch (e) { return false; }
+  }
+
+  function reviewThanksHTML() {
+    return '<div class="review-thanks">' +
+      '<div class="icon">🙏</div>' +
+      '<div class="msg">소중한 후기 감사합니다!</div>' +
+      '<div class="sub">남겨주신 이야기, 잘 참고할게요.</div>' +
+    '</div>';
+  }
+
+  function reviewFormHTML() {
+    var stars = "";
+    for (var i = 1; i <= 5; i++) {
+      stars += '<button type="button" class="star-btn" data-star="' + i + '">★</button>';
+    }
+    return '<div class="star-row" id="starRow">' + stars + '</div>' +
+      '<textarea class="review-textarea" id="reviewText" placeholder="느낀 점을 자유롭게 남겨주세요"></textarea>' +
+      '<label class="review-consent">' +
+        '<input type="checkbox" id="reviewConsent">' +
+        '<span>이 후기가 마케팅(릴스, SNS 등)에 활용되는 것에 동의합니다</span>' +
+      '</label>' +
+      '<div class="review-error" id="reviewError" style="display:none;"></div>' +
+      '<button class="review-submit-btn" id="reviewSubmitBtn">후기 남기기</button>';
+  }
+
+  function reviewSectionHTML() {
+    var already = hasReviewed();
+    return '<div class="review-section" id="reviewSection">' +
+      '<div class="review-title">이 결과, 어떠셨나요?</div>' +
+      '<div class="review-sub">1분만 투자해주세요 — 좋은 후기는 릴스에 소개해드릴 수도 있어요 😊</div>' +
+      '<div id="reviewBody">' + (already ? reviewThanksHTML() : reviewFormHTML()) + '</div>' +
+    '</div>';
+  }
+
+  function wireReviewEvents(chart) {
+    if (hasReviewed()) return;
+
+    var selectedRating = 0;
+    var starRow = document.getElementById("starRow");
+    var starBtns = starRow ? Array.prototype.slice.call(starRow.querySelectorAll(".star-btn")) : [];
+
+    function paintStars() {
+      starBtns.forEach(function (btn) {
+        var v = Number(btn.getAttribute("data-star"));
+        if (v <= selectedRating) btn.classList.add("active");
+        else btn.classList.remove("active");
+      });
+    }
+
+    starBtns.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        selectedRating = Number(btn.getAttribute("data-star"));
+        paintStars();
+      });
+    });
+
+    var submitBtn = document.getElementById("reviewSubmitBtn");
+    if (!submitBtn) return;
+
+    submitBtn.addEventListener("click", function () {
+      var errorEl = document.getElementById("reviewError");
+      var consentBox = document.getElementById("reviewConsent");
+      var textEl = document.getElementById("reviewText");
+
+      if (selectedRating === 0) {
+        errorEl.textContent = "별점을 먼저 선택해주세요.";
+        errorEl.style.display = "block";
+        return;
+      }
+      if (!consentBox.checked) {
+        errorEl.textContent = "마케팅 활용 동의 체크가 필요합니다.";
+        errorEl.style.display = "block";
+        return;
+      }
+      errorEl.style.display = "none";
+      submitBtn.disabled = true;
+      submitBtn.textContent = "전송 중...";
+
+      var payload = {
+        rating: selectedRating,
+        review: textEl.value.slice(0, 1000),
+        consent: true,
+        zodiac: chart.zodiac.name,
+        dayElement: chart.dayElement,
+        lifePath: chart.lifePath
+      };
+
+      // Apps Script 웹 앱은 CORS 응답을 지원하지 않아 no-cors 로 전송 (응답 내용은 읽지 않고 낙관적으로 처리)
+      try {
+        fetch(CONFIG.REVIEW_ENDPOINT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify(payload)
+        }).catch(function () {});
+      } catch (e) { /* 네트워크 미지원 환경이어도 아래 완료 처리는 진행 */ }
+
+      try { localStorage.setItem("samwonban_reviewed", "true"); } catch (e) {}
+
+      setTimeout(function () {
+        var body = document.getElementById("reviewBody");
+        if (body) body.innerHTML = reviewThanksHTML();
+      }, 400);
+    });
+  }
+
+  /* ---------- 화면 렌더링 ---------- */
+
+  var root = document.getElementById("root");
+
+  function renderHeader() {
+    return '<div class="header">' +
+      '<div class="eyebrow">SAJU · ASTROLOGY · NUMEROLOGY</div>' +
+      '<h1>三元盤 삼원반</h1>' +
+      '<p>사주 · 서양 점성술 · 수비학, 세 개의 원(元)이 만나는 자리</p>' +
+    '</div>';
+  }
+
+  function buildTimeSelectOptions() {
+    var ampm = '<option value="">선택</option><option value="AM">오전</option><option value="PM">오후</option>';
+    var hour = '<option value="">시</option>';
+    for (var h = 1; h <= 12; h++) hour += '<option value="' + h + '">' + h + '시</option>';
+    var minute = '<option value="">분</option>';
+    for (var mi = 0; mi <= 59; mi++) {
+      var mm = mi < 10 ? "0" + mi : String(mi);
+      minute += '<option value="' + mi + '">' + mm + '분</option>';
+    }
+    return { ampm: ampm, hour: hour, minute: minute };
+  }
+
+  function to24Hour(ampm, hour12) {
+    var h = Number(hour12);
+    if (ampm === "AM") return h === 12 ? 0 : h;
+    return h === 12 ? 12 : h + 12;
+  }
+
+  function renderForm() {
+    var opts = buildTimeSelectOptions();
+    root.innerHTML = '<div class="app-root"><div class="content-wrap">' +
+      renderHeader() +
+      '<form class="birth-form" id="birthForm">' +
+        '<p class="form-lede">생년월일(양력)을 입력하면 사주 · 별자리 · 생명수 세 갈래로 명반을 펼칩니다.</p>' +
+        '<label class="field"><span>생년월일 (양력)</span><input type="date" id="birthDate" required></label>' +
+        '<div class="field"><span>출생시간 (선택 · 시주 계산에 사용)</span>' +
+          '<div class="time-picker-row">' +
+            '<select id="birthAmPm">' + opts.ampm + '</select>' +
+            '<select id="birthHour">' + opts.hour + '</select>' +
+            '<select id="birthMinute">' + opts.minute + '</select>' +
+          '</div>' +
+        '</div>' +
+        '<label class="checkbox-field"><input type="checkbox" id="unknownTime"><span>출생시간을 모릅니다</span></label>' +
+        '<div class="form-error" id="formError" style="display:none;"></div>' +
+        '<button type="submit" class="submit-btn">명반 펼치기</button>' +
+      '</form>' +
+    '</div></div>';
+
+    var form = document.getElementById("birthForm");
+    var unknownTimeBox = document.getElementById("unknownTime");
+    var ampmSel = document.getElementById("birthAmPm");
+    var hourSel = document.getElementById("birthHour");
+    var minuteSel = document.getElementById("birthMinute");
+
+    unknownTimeBox.addEventListener("change", function () {
+      var disabled = unknownTimeBox.checked;
+      ampmSel.disabled = disabled;
+      hourSel.disabled = disabled;
+      minuteSel.disabled = disabled;
+    });
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var dateVal = document.getElementById("birthDate").value;
+      var errorEl = document.getElementById("formError");
+      if (!dateVal) {
+        errorEl.textContent = "생년월일을 입력해주세요.";
+        errorEl.style.display = "block";
+        return;
+      }
+      var parts = dateVal.split("-").map(Number);
+      var y = parts[0], m = parts[1], d = parts[2];
+      if (!y || y < 1900 || y > 2100) {
+        errorEl.textContent = "1900~2100년 사이의 날짜를 입력해주세요.";
+        errorEl.style.display = "block";
+        return;
+      }
+
+      var hour = 12, minute = 0, hasTime = false;
+      if (!unknownTimeBox.checked) {
+        var ampmVal = ampmSel.value, hourVal = hourSel.value, minuteVal = minuteSel.value;
+        if (ampmVal === "" || hourVal === "" || minuteVal === "") {
+          errorEl.textContent = "출생시간을 오전/오후·시·분까지 모두 선택하거나, 모르신다면 아래 체크박스를 선택해주세요.";
+          errorEl.style.display = "block";
+          return;
+        }
+        hour = to24Hour(ampmVal, hourVal);
+        minute = Number(minuteVal);
+        hasTime = true;
+      }
+      errorEl.style.display = "none";
+
+      var input = { year: y, month: m, day: d, hour: hour, minute: minute, hasTime: hasTime };
+      var chart = computeChart(input);
+      renderResult(chart);
+    });
+  }
+
+  function renderResult(chart) {
+    var thisYear = new Date().getFullYear();
+    root.innerHTML = '<div class="app-root"><div class="content-wrap">' +
+      renderHeader() +
+      '<div class="chart-wrap">' + destinyChartSVG(chart) + '</div>' +
+      resultCardsHTML(chart) +
+      synthesisHTML(chart) +
+      '<p class="disclaimer">간단 버전으로 절기(節氣) 및 진태양시 보정이 반영되지 않은 근사 계산입니다. 재미로 참고해주세요.</p>' +
+      '<div id="detailSection">' + detailSectionHTML(chart, thisYear) + '</div>' +
+      reviewSectionHTML() +
+      '<button class="reset-btn" id="resetBtn">다시 보기</button>' +
+    '</div></div>';
+
+    document.getElementById("resetBtn").addEventListener("click", renderForm);
+    wireDetailEvents(chart);
+    wireReviewEvents(chart);
+  }
+
+  renderForm();
+})();
+</script>
+</body>
+</html>
