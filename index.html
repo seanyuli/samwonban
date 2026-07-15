@@ -1549,6 +1549,19 @@
     '</div>';
   }
 
+  function buildDateSelectOptions() {
+    var thisYear = new Date().getFullYear();
+    var year = '<option value="">년</option>';
+    for (var y = thisYear; y >= 1900; y--) {
+      year += '<option value="' + y + '">' + y + '년</option>';
+    }
+    var month = '<option value="">월</option>';
+    for (var m = 1; m <= 12; m++) month += '<option value="' + m + '">' + m + '월</option>';
+    var day = '<option value="">일</option>';
+    for (var d = 1; d <= 31; d++) day += '<option value="' + d + '">' + d + '일</option>';
+    return { year: year, month: month, day: day };
+  }
+
   function buildTimeSelectOptions() {
     var ampm = '<option value="">선택</option><option value="AM">오전</option><option value="PM">오후</option>';
     var hour = '<option value="">시</option>';
@@ -1569,11 +1582,19 @@
 
   function renderForm() {
     var opts = buildTimeSelectOptions();
+    var dateOpts = buildDateSelectOptions();
     root.innerHTML = '<div class="app-root"><div class="content-wrap">' +
       renderHeader() +
       '<form class="birth-form" id="birthForm">' +
         '<p class="form-lede">생년월일(양력)을 입력하면 사주 · 별자리 · 생명수 세 갈래로 명반을 펼칩니다.</p>' +
-        '<label class="field"><span>생년월일 (양력)</span><input type="date" id="birthDate" required></label>' +
+        '<div class="field"><span>생년월일 (양력)</span>' +
+          '<div class="time-picker-row">' +
+            '<select id="birthYear">' + dateOpts.year + '</select>' +
+            '<select id="birthMonth">' + dateOpts.month + '</select>' +
+            '<select id="birthDay">' + dateOpts.day + '</select>' +
+          '</div>' +
+          '<span style="font-size:11.5px; color:#8B849E;">각 항목 클릭 후 연도 숫자를 바로 타이핑하면 빠르게 찾을 수 있어요 (예: 1975 입력)</span>' +
+        '</div>' +
         '<div class="field"><span>출생시간 (선택 · 시주 계산에 사용)</span>' +
           '<div class="time-picker-row">' +
             '<select id="birthAmPm">' + opts.ampm + '</select>' +
@@ -1602,15 +1623,16 @@
 
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      var dateVal = document.getElementById("birthDate").value;
+      var yVal = document.getElementById("birthYear").value;
+      var mVal = document.getElementById("birthMonth").value;
+      var dVal = document.getElementById("birthDay").value;
       var errorEl = document.getElementById("formError");
-      if (!dateVal) {
-        errorEl.textContent = "생년월일을 입력해주세요.";
+      if (!yVal || !mVal || !dVal) {
+        errorEl.textContent = "생년월일을 년·월·일까지 모두 선택해주세요.";
         errorEl.style.display = "block";
         return;
       }
-      var parts = dateVal.split("-").map(Number);
-      var y = parts[0], m = parts[1], d = parts[2];
+      var y = Number(yVal), m = Number(mVal), d = Number(dVal);
       if (!y || y < 1900 || y > 2100) {
         errorEl.textContent = "1900~2100년 사이의 날짜를 입력해주세요.";
         errorEl.style.display = "block";
