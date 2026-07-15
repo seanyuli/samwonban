@@ -683,6 +683,48 @@
     수: "재성인 화(火)의 성질에 따라 대중의 주목을 받는 트렌드 자산, 시세차익형 투자가 유리합니다. 배당처럼 조용히 쌓이는 수익보다 드러나고 확산되는 구조의 수익이 기질과 맞으며, 퍼스널 브랜딩을 기반으로 한 사업소득도 잘 맞는 편입니다."
   };
 
+  /* ---------- 재물운 세부: 정재/편재 비중으로 보는 부동산 vs 주식·코인 ----------
+     사주명리에서 자산 유형 선호는 오행보다 십성(정재/편재)의 종류가 더 직접적인 근거입니다.
+     정재=착실히 지키는 재물(부동산·고정자산), 편재=유동적이고 규모가 큰 재물(주식·코인·사업투자).
+     년간/월간/시간(일간 제외)에 나타난 정재·편재 개수를 세어 우세한 쪽으로 판단합니다. */
+  var ASSET_TYPE_TEXT = {
+    정재우세: "사주 원국에 정재(正財)의 기운이 편재보다 뚜렷하게 우세합니다. 정재는 명리학에서 꾸준히 관리하고 지키는 재물을 상징하므로, 시세차익을 노리는 투자보다 부동산처럼 실물로 보유하며 시간이 지날수록 안정적으로 가치가 쌓이는 자산, 또는 정기적인 현금흐름을 만드는 구조가 기질과 훨씬 잘 맞습니다. 주식이나 코인처럼 변동성이 큰 자산은 심리적으로도 부담이 크고, 실제 성과로 이어지기도 쉽지 않은 편입니다.",
+    편재우세: "사주 원국에 편재(偏財)의 기운이 정재보다 뚜렷하게 우세합니다. 편재는 명리학에서 유동적이고 규모가 큰 재물, 사업적 확장을 상징하므로, 한곳에 묶어두는 부동산보다 주식·코인·사업 투자처럼 흐름을 타고 규모를 키울 수 있는 자산과 궁합이 좋습니다. 다만 편재는 들어오고 나가는 것이 모두 크다는 특성이 있어, 절제된 리스크 관리가 함께 갖춰져야 실제로 재물이 쌓입니다.",
+    혼재: "사주 원국에 정재와 편재가 뚜렷하게 갈리지 않아, 특정 자산군 하나에 유불리가 크게 쏠려 있지는 않습니다. 이 경우엔 아래 일간의 오행 성질에 따른 투자 방향을 기본 축으로 삼는 것이 더 실질적인 근거가 됩니다."
+  };
+
+  function getAssetTypeKey(chart) {
+    var jeongjae = 0, pyeonjae = 0;
+    [chart.yearTenGod, chart.monthTenGod, chart.hourTenGod].forEach(function (tg) {
+      if (tg === "정재") jeongjae++;
+      if (tg === "편재") pyeonjae++;
+    });
+    if (pyeonjae > jeongjae) return "편재우세";
+    if (jeongjae > pyeonjae) return "정재우세";
+    return "혼재";
+  }
+
+  /* ---------- 직업운 세부: 국내 vs 해외 ----------
+     신살 중 역마(驛馬)가 이동·해외·출장이 잦은 환경과의 궁합을 보는 전통적 근거입니다(사주 근거, 주된 기준).
+     생명수는 이 판단을 뒤집지 않고, 역마가 있을 때 그 방향에 힘을 보태는 보조 근거로만 한 줄 덧붙입니다
+     (수비학이 강점을 보이는 "압축적 키워드" 역할에 한정 — 점성술은 이 축에 특별한 강점이 없어 사용하지 않음). */
+  var OVERSEAS_TEXT = {
+    yeokma: "사주에 역마(驛馬)의 기운이 있어, 한 지역·한 조직에 머무르기보다 이동이 잦은 환경에서 오히려 능력이 발휘되는 유형입니다. 국내에 한정되기보다 해외 출장·주재·이주가 있는 커리어, 또는 국내에서도 여러 지역이나 조직을 오가는 업무 쪽이 기질과 더 잘 맞습니다.",
+    none: "사주에 역마(驛馬)의 기운이 뚜렷하게 나타나지 않습니다. 이동보다는 한 곳에 뿌리내려 전문성을 쌓아가는 국내 중심의 커리어가 상대적으로 안정적으로 맞는 편이며, 필요할 때 단기 해외 프로젝트 정도는 무리 없이 소화할 수 있는 유형입니다."
+  };
+
+  var LIFE_PATH_OVERSEAS_NOTE = {
+    5: "생명수 5(자유와 확장의 기질) 역시 이 방향에 힘을 보태는 결입니다.",
+    9: "생명수 9(포용과 완결의 시야) 역시 폭넓은 활동 범위와 잘 어울립니다.",
+    22: "생명수 22(이상의 현실화 역량) 역시 국제적 규모의 프로젝트를 감당할 그릇을 뒷받침합니다."
+  };
+
+  function getOverseasText(chart) {
+    var base = chart.sinsalList.indexOf("역마") !== -1 ? OVERSEAS_TEXT.yeokma : OVERSEAS_TEXT.none;
+    var note = LIFE_PATH_OVERSEAS_NOTE[chart.lifePath];
+    return note ? base + " " + note : base;
+  }
+
   var WEALTH_STRENGTH_NOTE = {
     "신강_high": "일간이 힘있게 재성을 감당할 수 있는 신강(身强) 구조로, 재물이 실제 성과로 잘 연결되는 편입니다.",
     "신강_low": "일간은 강한 데 비해 재성이 뚜렷하지 않은 구조로, 재물을 만들 잠재력은 있으나 이를 끌어올 계기(사업, 투자처)를 스스로 마련해야 하는 유형입니다.",
@@ -1330,6 +1372,7 @@
     var wealthElementCount = chart.elementCounts[wealthElement];
     var wealthKey = getWealthStrengthKey(chart.strength, wealthElementCount);
     var wealthText = WEALTH_STRENGTH_NOTE[wealthKey] + ' ' + INVEST_GUIDE[chart.dayElement];
+    var assetTypeText = ASSET_TYPE_TEXT[getAssetTypeKey(chart)];
     var investText = LIFE_PATH_INVEST_HINT[chart.lifePath];
 
     var dom = chart.dominant;
@@ -1344,24 +1387,32 @@
     if (chart.sinsalList.length) {
       careerText += ' ' + chart.sinsalList.map(function (s) { return SINSAL_MEANING[s]; }).join(' ');
     }
-    // 오행 dominant 축만 쓰면 5(또는 10)가지 경우의 수로 추천이 겹치기 쉬워, 월지 십성·생명수·신살(역마·도화·화개)
-    // 개인화 항목을 먼저 채우고 남는 자리를 오행 기반 직업군으로 채웁니다
-    // (개인화 항목이 뒤에서 잘려나가지 않도록 순서를 고정 — 십성 → 신살 → 생명수 → 오행).
+    // 우선순위를 오행 dominant(실제 성향·경력과 가장 직접 연결되는 구조적 축) → 월지 십성 →
+    // dual 보조오행 → 생명수 → 신살(자리가 남을 때만 보조) 순으로 재구성합니다.
+    // 이전에는 신살(역마·도화·화개) 항목이 먼저 채워져 정작 핵심 오행 직업군(예: 목의 '브랜드 마케터')이
+    // 밀려나는 문제가 있었습니다 — 신살은 어디까지나 보조 지표이지, 주력 성향축을 대체할 수 없습니다.
     var jobList = [];
+    JOB_CATEGORIES[dom.top1].slice(0, 2).forEach(function (j) { if (jobList.indexOf(j) === -1) jobList.push(j); });
     TEN_GOD_JOB_HINT[relGroup].forEach(function (j) { if (jobList.indexOf(j) === -1) jobList.push(j); });
-    chart.sinsalList.forEach(function (s) {
-      SINSAL_JOB_HINT[s].forEach(function (j) { if (jobList.indexOf(j) === -1) jobList.push(j); });
-    });
-    LIFE_PATH_JOB_HINT[chart.lifePath].forEach(function (j) { if (jobList.indexOf(j) === -1) jobList.push(j); });
-    JOB_CATEGORIES[dom.top1].forEach(function (j) { if (jobList.indexOf(j) === -1) jobList.push(j); });
     if (dom.isDual) {
-      JOB_CATEGORIES[dom.top2].slice(0, 3).forEach(function (j) { if (jobList.indexOf(j) === -1) jobList.push(j); });
+      JOB_CATEGORIES[dom.top2].slice(0, 1).forEach(function (j) { if (jobList.indexOf(j) === -1) jobList.push(j); });
+    }
+    LIFE_PATH_JOB_HINT[chart.lifePath].slice(0, 1).forEach(function (j) { if (jobList.indexOf(j) === -1) jobList.push(j); });
+    if (jobList.length < 5 && chart.sinsalList.length) {
+      var pickedSinsal = SINSAL_JOB_HINT[chart.sinsalList[0]][0];
+      if (jobList.indexOf(pickedSinsal) === -1) jobList.push(pickedSinsal);
+    }
+    // 그래도 5자리가 안 채워지면 오행 카테고리 나머지 항목으로 보충
+    JOB_CATEGORIES[dom.top1].forEach(function (j) { if (jobList.indexOf(j) === -1 && jobList.length < 5) jobList.push(j); });
+    if (dom.isDual) {
+      JOB_CATEGORIES[dom.top2].forEach(function (j) { if (jobList.indexOf(j) === -1 && jobList.length < 5) jobList.push(j); });
     }
     var jobChips = jobList.slice(0, 5).map(function (j) {
       return '<span class="job-chip">' + j + '</span>';
     }).join("");
 
     var relationshipText = RELATIONSHIP_TEXT[relGroup] + ' ' + LIFE_PATH_RELATIONSHIP_HINT[chart.lifePath];
+    var overseasText = getOverseasText(chart);
 
     var pendingTenGod = getCurrentMonthTenGod(chart.dayP.stemIdx);
     var pendingGroup = TEN_GOD_GROUP[pendingTenGod];
@@ -1384,13 +1435,15 @@
 
       '<div class="detail-card" style="--accent:' + ELEMENT_COLOR[chart.dayElement] + '">' +
         '<div class="detail-card-title">재물운</div><p>' + wealthText + '</p>' +
-        '<div class="subcard-label">부동산·주식 등 투자처 적합도</div><p>' + investText + '</p>' +
+        '<div class="subcard-label">부동산 vs 주식·코인 <span style="font-weight:400; color:#8B849E; font-size:11.5px;">(정재·편재 기준, 사주 근거)</span></div><p>' + assetTypeText + '</p>' +
+        '<div class="subcard-label">생명수로 보는 투자 성향 <span style="font-weight:400; color:#8B849E; font-size:11.5px;">(보조 참고)</span></div><p>' + investText + '</p>' +
       '</div>' +
 
       '<div class="detail-card" style="--accent:#C4A155">' +
         '<div class="detail-card-title">직업운</div><p>' + careerText + '</p>' +
         '<div class="subcard-label">가장 적합한 직업 다섯 가지 <span style="font-weight:400; color:#8B849E; font-size:11.5px;">(오행·월지 십성·신살·생명수 종합)</span></div>' +
         '<div class="job-chip-row">' + jobChips + '</div>' +
+        '<div class="subcard-label">국내 vs 해외 <span style="font-weight:400; color:#8B849E; font-size:11.5px;">(역마살 기준, 사주 근거)</span></div><p>' + overseasText + '</p>' +
         '<div class="subcard-label">계약·시험 앞두고 있다면</div><p>' + contractExamTip + '</p>' +
       '</div>' +
 
