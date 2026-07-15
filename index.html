@@ -150,6 +150,14 @@
     border-radius: 10px;
     padding: 1px 8px;
   }
+  .detail-card-title .basis-tag {
+    font-size: 10px;
+    font-weight: 400;
+    font-style: italic;
+    color: #8B849E;
+    letter-spacing: 0.2px;
+  }
+  .detail-card-title { flex-wrap: wrap; }
   .detail-card p { font-size: 13.5px; line-height: 1.8; color: #D3CDEA; margin: 0; }
   .year-select-row {
     display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 12.5px; color: #B3ABD6;
@@ -999,6 +1007,39 @@
     33: "생명수 33은 서로 돌보고 성장시키는 관계를 지향하는 배우자와의 관계에서 만족도가 높습니다."
   };
 
+  /* ---------- 점성술 보조 힌트: 인간관계운·배우자운 ----------
+     설계 원칙상 사주가 본론이고 점성술은 배우자운·인간관계운(관계 뉘앙스에 강점)에서만
+     보조로 씁니다. 재물운·직업운은 점성술이 특별한 강점을 갖는 영역이 아니라서 넣지 않습니다. */
+  var ZODIAC_RELATIONSHIP_HINT = {
+    양자리: "별자리로 보면 먼저 다가가고 주도하는 쪽이 편한 유형이라, 관계에서도 속도감 있게 친해지는 편입니다.",
+    황소자리: "별자리로 보면 관계를 천천히, 오래 다지는 편이라 한번 신뢰를 쌓으면 흔들림 없이 오래 가는 유형입니다.",
+    쌍둥이자리: "별자리로 보면 폭넓은 대화와 다양한 사람과의 교류에서 활력을 얻는 유형입니다.",
+    게자리: "별자리로 보면 정서적으로 가까운 소수의 관계를 깊이 챙기는 유형입니다.",
+    사자자리: "별자리로 보면 관계 안에서 존재감을 드러내고 인정받을 때 만족도가 높은 유형입니다.",
+    처녀자리: "별자리로 보면 상대를 세심하게 챙기되, 신뢰가 쌓이기까지 시간이 필요한 유형입니다.",
+    천칭자리: "별자리로 보면 균형과 공정함을 중요하게 여겨, 일방적인 관계보다 상호적인 관계를 선호합니다.",
+    전갈자리: "별자리로 보면 겉보다 속을 깊이 나누는 소수와의 관계에 강점이 있는 유형입니다.",
+    사수자리: "별자리로 보면 관계에서도 자유로움을 중요하게 여겨, 구속감을 주지 않는 사이일 때 편안함을 느낍니다.",
+    염소자리: "별자리로 보면 관계도 차근차근 책임감 있게 쌓아가는 편으로, 신중한 만큼 오래 지속됩니다.",
+    물병자리: "별자리로 보면 틀에 얽매이지 않는 독립적인 관계 방식을 선호하는 유형입니다.",
+    물고기자리: "별자리로 보면 상대의 감정에 깊이 공감하며, 관계 안에서 서로를 있는 그대로 받아들이는 편입니다."
+  };
+
+  var ZODIAC_SPOUSE_HINT = {
+    양자리: "별자리로 보면 배우자와의 관계에서도 주도적으로 이끄는 쪽을 편하게 느끼는 유형입니다.",
+    황소자리: "별자리로 보면 한번 맺은 인연을 오래, 안정적으로 지켜가는 유형이라 결혼생활의 지속성이 강점입니다.",
+    쌍둥이자리: "별자리로 보면 배우자와 대화가 잘 통하고 서로 자극을 주고받을 때 관계가 활기를 띠는 유형입니다.",
+    게자리: "별자리로 보면 가정을 정서적 안식처로 여기며, 배우자를 깊이 챙기는 유형입니다.",
+    사자자리: "별자리로 보면 배우자에게 인정받고 존중받을 때 결혼생활의 만족도가 크게 오르는 유형입니다.",
+    처녀자리: "별자리로 보면 배우자의 사소한 부분까지 세심하게 챙기는 대신, 신뢰가 쌓이기까지 시간이 필요한 유형입니다.",
+    천칭자리: "별자리로 보면 배우자와의 균형과 공정한 역할 분담을 중요하게 여기는 유형입니다.",
+    전갈자리: "별자리로 보면 배우자와 깊고 진한 정서적 유대를 원하며, 피상적인 관계는 만족스럽지 않은 유형입니다.",
+    사수자리: "별자리로 보면 배우자에게도 서로의 자유를 존중해주는 여유를 기대하는 유형입니다.",
+    염소자리: "별자리로 보면 결혼생활을 책임감 있게, 장기적인 안목으로 함께 쌓아가는 유형입니다.",
+    물병자리: "별자리로 보면 배우자와도 각자의 독립성을 지키면서 동반자로 지내는 관계를 선호하는 유형입니다.",
+    물고기자리: "별자리로 보면 배우자와 정서적으로 깊이 공감하고 서로를 있는 그대로 받아들이는 유형입니다."
+  };
+
   var SPOUSE_SYNASTRY_NOTE = "참고로 점성술의 시너스트리(Synastry)는 두 사람의 행성 배치를 겹쳐 비교하는 궁합 분석 기법입니다. 이 사주 풀이에 배우자(또는 상대방)의 생년월일을 더하면, 서로의 기운이 어떻게 상호작용하는지 훨씬 입체적으로 확인할 수 있습니다.";
 
   function getCurrentMonthTenGod(dayStemIdx) {
@@ -1421,6 +1462,8 @@
       var tenGod = getTenGod(chart.dayP.stemIdx, mp.stemIdx);
       var animal = BRANCH_ANIMAL[mp.branchIdx];
       var wealthLine = TEN_GOD_MONTHLY_WEALTH[tenGod] + getMonthlyWealthCrossNote(tenGod, natalAssetKey);
+      var monthZodiac = getZodiac(m, 15);
+      var monthZodiacNote = monthZodiac.name + ' 기운(' + ZODIAC_KEYWORD[monthZodiac.name] + ')이 도는 달입니다.';
       rows += '<div class="month-row">' +
         '<div class="month-row-head">' +
           '<span class="month-num">' + m + '월</span>' +
@@ -1428,6 +1471,7 @@
           '<span class="tengod-badge">' + tenGod + '</span>' +
         '</div>' +
         '<p>' + TEN_GOD_MONTHLY_ADVICE[tenGod] + '</p>' +
+        '<div class="month-subline"><b>이 달의 별자리 기운</b>' + monthZodiacNote + '</div>' +
         '<div class="month-subline"><b>재물</b>' + wealthLine + '</div>' +
         '<div class="month-subline"><b>관계</b>' + TEN_GOD_MONTHLY_RELATIONSHIP[tenGod] + '</div>' +
         '<div class="month-subline month-subline-hope"><b>기대해도 좋을 일</b>' + TEN_GOD_MONTHLY_HOPE[tenGod] + '</div>' +
@@ -1436,7 +1480,7 @@
     }
 
     return '<div class="detail-card" style="--accent:#8B7FC7">' +
-      '<div class="detail-card-title">세운(歲運) · 월별 상세 <span class="badge">' + selectedYear + '년</span></div>' +
+      '<div class="detail-card-title">세운(歲運) · 월별 상세 <span class="basis-tag">사주 중심 · 점성술 보조</span> <span class="badge">' + selectedYear + '년</span></div>' +
       '<div class="year-select-row"><span>연도 선택</span><select id="yearSelect">' + options + '</select></div>' +
       '<div class="month-list" id="monthList">' + rows + '</div>' +
     '</div>';
@@ -1534,7 +1578,7 @@
       return '<span class="job-chip">' + j + '</span>';
     }).join("");
 
-    var relationshipText = RELATIONSHIP_TEXT[relGroup] + ' ' + LIFE_PATH_RELATIONSHIP_HINT[chart.lifePath];
+    var relationshipText = RELATIONSHIP_TEXT[relGroup] + ' ' + LIFE_PATH_RELATIONSHIP_HINT[chart.lifePath] + ' ' + ZODIAC_RELATIONSHIP_HINT[chart.zodiac.name];
     var overseasText = getOverseasText(chart);
     var statusBlocks = relationshipStatusBlocks(chart);
 
@@ -1552,19 +1596,20 @@
     var spouseTenGodText = spouseTenGodKey ? SPOUSE_TENGOD_TEXT[spouseTenGodKey] : "";
     var spouseBaseText = SPOUSE_TEXT_FN[chart.spouseRelation](chart.dayElement, chart.dayBranchElement, chart);
     var spouseLifePathText = SPOUSE_LIFE_PATH_HINT[chart.lifePath];
+    var spouseZodiacText = ZODIAC_SPOUSE_HINT[chart.zodiac.name];
 
     return '<div class="beta-badge">베타 · 무료 공개</div>' +
 
       ohaengAnalysisHTML(chart) +
 
       '<div class="detail-card" style="--accent:' + ELEMENT_COLOR[chart.dayElement] + '">' +
-        '<div class="detail-card-title">재물운</div><p>' + wealthText + '</p>' +
+        '<div class="detail-card-title">재물운 <span class="basis-tag">사주 중심 · 수비학 보조</span></div><p>' + wealthText + '</p>' +
         '<div class="subcard-label">부동산 vs 주식·코인 <span style="font-weight:400; color:#8B849E; font-size:11.5px;">(정재·편재 기준, 사주 근거)</span></div><p>' + assetTypeText + '</p>' +
         '<div class="subcard-label">생명수로 보는 투자 성향 <span style="font-weight:400; color:#8B849E; font-size:11.5px;">(보조 참고)</span></div><p>' + investText + '</p>' +
       '</div>' +
 
       '<div class="detail-card" style="--accent:#C4A155">' +
-        '<div class="detail-card-title">직업운</div><p>' + careerText + '</p>' +
+        '<div class="detail-card-title">직업운 <span class="basis-tag">사주 중심 · 수비학 보조</span></div><p>' + careerText + '</p>' +
         '<div class="subcard-label">가장 적합한 직업 다섯 가지 <span style="font-weight:400; color:#8B849E; font-size:11.5px;">(오행·월지 십성·신살·생명수 종합)</span></div>' +
         '<div class="job-chip-row">' + jobChips + '</div>' +
         '<div class="subcard-label">국내 vs 해외 <span style="font-weight:400; color:#8B849E; font-size:11.5px;">(역마살 기준, 사주 근거)</span></div><p>' + overseasText + '</p>' +
@@ -1572,7 +1617,7 @@
       '</div>' +
 
       '<div class="detail-card" style="--accent:#8B7FC7">' +
-        '<div class="detail-card-title">인간관계운</div><p>' + relationshipText + '</p>' +
+        '<div class="detail-card-title">인간관계운 <span class="basis-tag">사주 중심 · 점성술·수비학 보조</span></div><p>' + relationshipText + '</p>' +
         '<div class="subcard-label">지금 상태에 맞는 관계 · 귀인 풀이</div>' +
         '<div class="status-toggle-row">' +
           '<button type="button" class="status-toggle-btn active" data-status="married">기혼이라면</button>' +
@@ -1582,14 +1627,15 @@
       '</div>' +
 
       '<div class="detail-card" style="--accent:#A23B3B">' +
-        '<div class="detail-card-title">배우자운</div><p>' + spouseBaseText + '</p>' +
+        '<div class="detail-card-title">배우자운 <span class="basis-tag">사주 중심 · 점성술·수비학 보조</span></div><p>' + spouseBaseText + '</p>' +
         (spouseTenGodText ? '<div class="subcard-label">배우자궁(일지) 십성으로 본 관계 성향</div><p>' + spouseTenGodText + '</p>' : '') +
         '<div class="subcard-label">생명수로 보는 결혼생활</div><p>' + spouseLifePathText + '</p>' +
+        '<div class="subcard-label">별자리로 보는 결혼생활</div><p>' + spouseZodiacText + '</p>' +
         '<p style="margin-top:10px; font-size:12.5px; color:#A79FCB;">' + SPOUSE_SYNASTRY_NOTE + '</p>' +
       '</div>' +
 
       '<div class="detail-card" style="--accent:' + ELEMENT_COLOR[healthProfile.deficient] + '">' +
-        '<div class="detail-card-title">건강운</div><p>' + healthText + '</p>' +
+        '<div class="detail-card-title">건강운 <span class="basis-tag">사주 중심 · 점성술·수비학 보조</span></div><p>' + healthText + '</p>' +
         '<div class="subcard-label">' + chart.zodiac.name + ' 참고</div><p>' + healthZodiacText + '</p>' +
         '<div class="subcard-label">생명수 ' + chart.lifePath + ' 참고</div><p>' + healthLifePathText + '</p>' +
         '<p style="margin-top:10px; font-size:12px; color:#8B849E;">이 콘텐츠는 전통 명리·점성술 이론에 근거한 참고용 정보이며, 의학적 진단이나 치료를 대체하지 않습니다. 건강 이상이 의심되면 반드시 전문의와 상담하세요.</p>' +
