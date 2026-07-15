@@ -1656,21 +1656,24 @@
     if (chart.sinsalList.length) {
       careerText += ' ' + chart.sinsalList.map(function (s) { return SINSAL_MEANING[s]; }).join(' ');
     }
-    // 우선순위를 오행 dominant(실제 성향·경력과 가장 직접 연결되는 구조적 축) → 월지 십성 →
-    // dual 보조오행 → 생명수 → 신살(자리가 남을 때만 보조) 순으로 재구성합니다.
-    // 이전에는 신살(역마·도화·화개) 항목이 먼저 채워져 정작 핵심 오행 직업군(예: 목의 '브랜드 마케터')이
-    // 밀려나는 문제가 있었습니다 — 신살은 어디까지나 보조 지표이지, 주력 성향축을 대체할 수 없습니다.
+    // 우선순위: 오행 dominant(2) → 월지 십성 1순위(1) → 신살(있는 만큼 전부, 최대 3) →
+    // 월지 십성 2순위(1) → dual 보조오행(1) → 생명수(1) → 나머지 오행 채움, 최종 5개로 자름.
+    // 이전 버전은 신살보다 "월지 십성 2개 + dual 보조오행"을 항상 먼저 채워서, 화개살처럼
+    // 뚜렷한 신살이 있어도(예: 화개=예술가·학자) 5자리가 이미 차 버려 반영되지 못하는
+    // 문제가 있었습니다. 신살은 오행 dominant 다음으로 그 사람만의 개성을 가장 잘 드러내는
+    // 축이므로, 있으면 반드시 반영되도록 순서를 앞당깁니다.
     var jobList = [];
     JOB_CATEGORIES[dom.top1].slice(0, 2).forEach(function (j) { if (jobList.indexOf(j) === -1) jobList.push(j); });
-    TEN_GOD_JOB_HINT[relGroup].forEach(function (j) { if (jobList.indexOf(j) === -1) jobList.push(j); });
+    TEN_GOD_JOB_HINT[relGroup].slice(0, 1).forEach(function (j) { if (jobList.indexOf(j) === -1) jobList.push(j); });
+    chart.sinsalList.forEach(function (s) {
+      var j = SINSAL_JOB_HINT[s][0];
+      if (jobList.indexOf(j) === -1) jobList.push(j);
+    });
+    TEN_GOD_JOB_HINT[relGroup].slice(1, 2).forEach(function (j) { if (jobList.indexOf(j) === -1) jobList.push(j); });
     if (dom.isDual) {
       JOB_CATEGORIES[dom.top2].slice(0, 1).forEach(function (j) { if (jobList.indexOf(j) === -1) jobList.push(j); });
     }
     LIFE_PATH_JOB_HINT[chart.lifePath].slice(0, 1).forEach(function (j) { if (jobList.indexOf(j) === -1) jobList.push(j); });
-    if (jobList.length < 5 && chart.sinsalList.length) {
-      var pickedSinsal = SINSAL_JOB_HINT[chart.sinsalList[0]][0];
-      if (jobList.indexOf(pickedSinsal) === -1) jobList.push(pickedSinsal);
-    }
     // 그래도 5자리가 안 채워지면 오행 카테고리 나머지 항목으로 보충
     JOB_CATEGORIES[dom.top1].forEach(function (j) { if (jobList.indexOf(j) === -1 && jobList.length < 5) jobList.push(j); });
     if (dom.isDual) {
