@@ -1373,6 +1373,26 @@
 
   /* ---------- 상세풀이 렌더링 ---------- */
 
+  /* 월별 세운의 재물 문구는 지금까지 "그 달의 십성"만 보고 일반적으로 서술했습니다.
+     실제 명리 통변에서는 원국(타고난 정재/편재 성향)과 세운(그 달의 재성 기운)이
+     같은 방향인지 다른 방향인지를 비교하는 것이 핵심이므로, 이 교차 비교를 덧붙입니다. */
+  function getMonthlyWealthCrossNote(tenGod, natalAssetKey) {
+    if (tenGod !== "편재" && tenGod !== "정재") return "";
+    if (tenGod === "편재" && natalAssetKey === "편재우세") {
+      return " 평소 타고난 편재 기질과 같은 방향이라, 이 기회를 적극적으로 활용하기 좋은 달입니다.";
+    }
+    if (tenGod === "정재" && natalAssetKey === "정재우세") {
+      return " 평소 타고난 정재 기질과 같은 방향이라, 꾸준히 해오던 방식을 이어가기 좋은 달입니다.";
+    }
+    if (tenGod === "편재" && natalAssetKey === "정재우세") {
+      return " 평소의 안정 지향과는 다른 방향의 기회이니, 무리하게 확장하기보다 감당 가능한 선에서만 시도해보는 것이 좋은 달입니다.";
+    }
+    if (tenGod === "정재" && natalAssetKey === "편재우세") {
+      return " 평소의 확장 지향과는 달리, 잠시 속도를 늦추고 안정을 다지라는 신호로 볼 수 있는 달입니다.";
+    }
+    return "";
+  }
+
   function monthlyForecastHTML(chart, selectedYear) {
     var thisYear = new Date().getFullYear();
     var options = "";
@@ -1381,11 +1401,13 @@
     }
 
     var rows = "";
+    var natalAssetKey = getAssetTypeKey(chart);
     for (var m = 1; m <= 12; m++) {
       var mp = getMonthGanjiForYearMonth(selectedYear, m);
       var ganzhi = STEM_KO[mp.stemIdx] + BRANCH_KO[mp.branchIdx];
       var tenGod = getTenGod(chart.dayP.stemIdx, mp.stemIdx);
       var animal = BRANCH_ANIMAL[mp.branchIdx];
+      var wealthLine = TEN_GOD_MONTHLY_WEALTH[tenGod] + getMonthlyWealthCrossNote(tenGod, natalAssetKey);
       rows += '<div class="month-row">' +
         '<div class="month-row-head">' +
           '<span class="month-num">' + m + '월</span>' +
@@ -1393,7 +1415,7 @@
           '<span class="tengod-badge">' + tenGod + '</span>' +
         '</div>' +
         '<p>' + TEN_GOD_MONTHLY_ADVICE[tenGod] + '</p>' +
-        '<div class="month-subline"><b>재물</b>' + TEN_GOD_MONTHLY_WEALTH[tenGod] + '</div>' +
+        '<div class="month-subline"><b>재물</b>' + wealthLine + '</div>' +
         '<div class="month-subline"><b>관계</b>' + TEN_GOD_MONTHLY_RELATIONSHIP[tenGod] + '</div>' +
         '<div class="month-subline"><b>이 달 주의할 점</b>' + TEN_GOD_MONTHLY_RESULTS[tenGod] + '</div>' +
       '</div>';
