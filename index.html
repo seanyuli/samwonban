@@ -833,11 +833,26 @@
     "관성_high": "배우자궁에 관성(官星)의 기운이 자리하고, 이 기운이 사주 전체에서도 여러 차례 나타나 뚜렷한 편입니다. 서로의 역할과 책임이 명확하게 나뉘어 있을 때 관계가 가장 안정적이며, 신뢰가 쌓이면 오래도록 흔들리지 않는 결속을 만듭니다.",
     "관성_low": "배우자궁에 관성(官星)의 기운이 자리하지만, 사주 전체에서는 비중이 크지 않아 형식보다 자연스러운 흐름에 맡기는 관계를 선호하는 편입니다. 다만 배우자에게만큼은 안정감과 원칙을 기대하는 마음이 남아 있습니다.",
     "인성_high": "배우자궁에 인성(印星)의 기운이 자리하고, 이 기운이 사주 전체에서도 여러 차례 나타나 뚜렷한 편입니다. 배우자를 정신적 안식처로 여기는 경향이 강하게 자리 잡고 있으며, 서로를 돌보고 채워주는 상호작용이 관계의 중심이 됩니다.",
-    "인성_low": "배우자궁에 인성(印星)의 기운이 자리하지만, 사주 전체에서는 비중이 크지 않아 정서적 의존보다 독립적인 관계 방식을 더 편하게 느끼는 편입니다. 그럼에도 배우자로부터의 지지는 여전히 중요한 힘이 되어줍니다."
+    "인성_low": "배우자궁에 인성(印星)의 기운이 자리하지만, 사주 전체에서는 비중이 크지 않아 정서적 의존보다 독립적인 관계 방식을 더 편하게 느끼는 편입니다. 그럼에도 배우자로부터의 지지는 여전히 중요한 힘이 되어줍니다.",
+    "재성_재다신약": "배우자궁에 재성(財星)의 기운이 자리하지만, 이 재성이 일간이 감당하기 벅찰 만큼 강한 재다신약(財多身弱) 구조입니다. '함께 자산을 일군다'는 재성의 통상적 원리와 달리, 이 경우엔 배우자가 자산과 의사결정의 주도권을 사실상 혼자 쥐고 본인은 그 결정을 따라가는 위치에 놓이기 쉽습니다. 최소한의 재정 정보와 결정권만큼은 함께 확인하는 구조를 의식적으로 만들어두는 것이 중요합니다.",
+    "관성_관다신약": "배우자궁에 관성(官星)의 기운이 자리하지만, 이 관성이 일간이 감당하기 벅찰 만큼 강한 관다신약(官多身弱) 구조입니다. 관계 안의 규칙과 결정이 배우자 쪽으로 크게 기울어, 본인은 그에 맞춰가는 위치에 놓이기 쉽습니다. 억눌린 감정이 쌓이지 않도록 본인의 입장을 정기적으로 표현할 자리를 마련하는 것이 필요합니다.",
+    "관성_신강대등": "배우자궁에 관성(官星)의 기운이 자리하고, 일간이 이를 감당할 만큼 힘 있는 신강(身强) 구조입니다. 서로의 역할과 책임이 분명하게 나뉘어 있으면서도 대등하게 신뢰를 쌓아가는 관계를 만들어가기 좋은 유형입니다."
   };
 
   function getSpouseLevel(chart) {
     return chart.elementCounts[chart.dayBranchElement] >= 2 ? "high" : "low";
+  }
+
+  function getSpouseTenGodKey(chart) {
+    var group = SPOUSE_RELATION_TO_GROUP[chart.spouseRelation];
+    if (!group) return null;
+    var branchCount = chart.elementCounts[chart.dayBranchElement];
+    // 메인 문단(SPOUSE_TEXT_FN)의 재다신약/관다신약/신강대등 판정과 동일한 기준을 적용해,
+    // 서브카드가 메인 문단과 서로 다른 얘기를 하지 않도록 일치시킵니다.
+    if (group === "재성" && chart.strength === "신약" && branchCount >= 3) return "재성_재다신약";
+    if (group === "관성" && chart.strength === "신약" && branchCount >= 3) return "관성_관다신약";
+    if (group === "관성" && chart.strength === "신강") return "관성_신강대등";
+    return group + "_" + getSpouseLevel(chart);
   }
 
 
@@ -1358,9 +1373,8 @@
     var healthZodiacText = ZODIAC_HEALTH_AREA[chart.zodiac.name];
     var healthLifePathText = LIFE_PATH_HEALTH_HINT[chart.lifePath];
 
-    var spouseTenGodGroup = SPOUSE_RELATION_TO_GROUP[chart.spouseRelation];
-    var spouseLevel = getSpouseLevel(chart);
-    var spouseTenGodText = spouseTenGodGroup ? SPOUSE_TENGOD_TEXT[spouseTenGodGroup + "_" + spouseLevel] : "";
+    var spouseTenGodKey = getSpouseTenGodKey(chart);
+    var spouseTenGodText = spouseTenGodKey ? SPOUSE_TENGOD_TEXT[spouseTenGodKey] : "";
     var spouseBaseText = SPOUSE_TEXT_FN[chart.spouseRelation](chart.dayElement, chart.dayBranchElement, chart);
     var spouseLifePathText = SPOUSE_LIFE_PATH_HINT[chart.lifePath];
 
