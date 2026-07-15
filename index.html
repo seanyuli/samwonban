@@ -573,6 +573,38 @@
     return total;
   }
 
+  /* ---------- 수비학 사이클: 개인년(Personal Year) / 개인월(Personal Month) ----------
+     생명수(라이프패스)는 평생 고정된 숫자라 세운(월별)에는 그대로 쓸 수 없습니다.
+     수비학에는 이를 보완하는 별도의 사이클 개념이 있습니다 — 생일(월+일)에 "현재 연도"를
+     더해 구하는 개인년 넘버, 거기에 "현재 월"을 더해 구하는 개인월 넘버입니다. 둘 다
+     연도·월에 따라 실제로 달라지므로, 세운에서 점성술(별자리, 날짜 고정이라 매년 동일)이
+     채우지 못하는 "연도별·월별로 진짜 달라지는 수비학 축"을 이 사이클 넘버가 채워줍니다.
+     개인년/개인월은 라이프패스와 달리 마스터넘버(11·22·33)를 보존하지 않고 1~9로 완전히
+     환원하는 것이 통상적인 수비학 관례입니다. */
+  function getPersonalYearNumber(birthMonth, birthDay, year) {
+    var total = digitSum(birthMonth) + digitSum(birthDay) + digitSum(year);
+    while (total > 9) total = digitSum(total);
+    return total;
+  }
+
+  function getPersonalMonthNumber(personalYear, month) {
+    var total = digitSum(personalYear) + digitSum(month);
+    while (total > 9) total = digitSum(total);
+    return total;
+  }
+
+  var PERSONAL_MONTH_THEME = {
+    1: "새로운 시작을 여는 달입니다. 씨앗을 심듯 새로운 시도를 해보기 좋은 시기입니다.",
+    2: "관계와 협력이 부각되는 달입니다. 혼자 애쓰기보다 함께할 때 더 좋은 결과가 따릅니다.",
+    3: "표현과 창조의 에너지가 살아나는 달입니다. 즐거움과 사교 활동이 자연스럽게 따르는 시기입니다.",
+    4: "기초를 다지고 실무에 집중하기 좋은 달입니다. 꾸준한 노력이 착실히 결실로 이어집니다.",
+    5: "변화와 자유가 두드러지는 달입니다. 예상치 못한 전환이나 새로운 기회가 찾아올 수 있습니다.",
+    6: "책임과 돌봄이 중심이 되는 달입니다. 가족이나 가까운 사람과의 관계에 마음이 쓰이는 시기입니다.",
+    7: "내면을 돌아보고 재정비하는 달입니다. 성급한 확장보다 사색과 점검이 어울리는 시기입니다.",
+    8: "성과와 결실이 뚜렷해지는 달입니다. 그동안의 노력이 실질적인 결과로 드러나기 쉽습니다.",
+    9: "마무리와 정리가 필요한 달입니다. 새로운 사이클을 준비하며 놓아줄 것은 놓아주는 시기입니다."
+  };
+
   var GENERATES = { 목: "화", 화: "토", 토: "금", 금: "수", 수: "목" };
   var OVERCOMES = { 목: "토", 화: "금", 토: "수", 금: "목", 수: "화" };
 
@@ -1293,7 +1325,8 @@
       yearTenGod: yearTenGod, monthTenGod: monthTenGod, hourTenGod: hourTenGod,
       elementCounts: elementCounts, dominant: dominant,
       strength: strengthInfo.strength, usefulGod: usefulGod,
-      sinsalList: sinsalList
+      sinsalList: sinsalList,
+      birthMonth: month, birthDay: day
     };
   }
 
@@ -1478,10 +1511,27 @@
     neutral: function (me, ye) { return "이 달의 " + me + " 기운과 올해의 " + ye + " 기운이 직접적인 관계를 맺지 않아, 올해 흐름과는 별개로 독립적으로 흘러가는 달입니다."; }
   };
 
+  /* ---------- 세운의 변동수(이동·이사·이직) ----------
+     그 달의 지지가 (1) 원국의 역마살 지지와 같으면 "역마 발동" — 이동·이사·이직처럼
+     환경이 바뀌는 변화가 뚜렷해지는 신호로 봅니다. (2) 일지와 충(沖) 관계(정반대 지지,
+     지지 순번 차이 6)를 이루면 "충" — 소속이나 생활 반경이 흔들리는 변동의 신호로 봅니다.
+     두 조건 모두 해당 사항이 없는 달에는 이 라인 자체를 표시하지 않습니다. */
+  function getMonthlyChangeNote(chart, monthBranchIdx) {
+    var triad = BRANCH_TRIAD_GROUP[chart.dayP.branchIdx];
+    var natalYeokmaBranch = triad ? TRIAD_SINSAL_BRANCH[triad].역마 : null;
+    if (natalYeokmaBranch !== null && monthBranchIdx === natalYeokmaBranch) {
+      return "역마살이 발동하는 달입니다. 이사·이직·출장처럼 환경이 바뀌는 이동수가 뚜렷하게 보이니, 변화를 앞두고 있다면 이 시기를 적극적으로 활용해볼 만합니다.";
+    }
+    if (mod(monthBranchIdx - chart.dayP.branchIdx, 12) === 6) {
+      return "일지와 충(沖)이 되는 달입니다. 소속이나 생활 반경이 흔들리며 예상치 못한 변화가 생기기 쉬우니, 이직·이사·이별처럼 큰 전환점이 필요했다면 오히려 물꼬가 트이는 시기가 될 수 있습니다.";
+    }
+    return "";
+  }
+
   function monthlyForecastHTML(chart, selectedYear) {
     var thisYear = new Date().getFullYear();
     var options = "";
-    for (var y = thisYear; y <= thisYear + 2; y++) {
+    for (var y = thisYear; y <= thisYear + 1; y++) {
       options += '<option value="' + y + '"' + (y === selectedYear ? " selected" : "") + '>' + y + '년' + (y === thisYear ? "(올해)" : "") + '</option>';
     }
 
@@ -1491,6 +1541,7 @@
     var yearElement = STEM_ELEMENT[yearP.stemIdx];
     var yearTenGod = getTenGod(chart.dayP.stemIdx, yearP.stemIdx);
     var yearThemeText = YEAR_THEME_TEXT[yearTenGod];
+    var personalYear = getPersonalYearNumber(chart.birthMonth, chart.birthDay, selectedYear);
     for (var m = 1; m <= 12; m++) {
       var mp = getMonthGanjiForYearMonth(selectedYear, m);
       var ganzhi = STEM_KO[mp.stemIdx] + BRANCH_KO[mp.branchIdx];
@@ -1499,9 +1550,12 @@
       var wealthLine = TEN_GOD_MONTHLY_WEALTH[tenGod] + getMonthlyWealthCrossNote(tenGod, natalAssetKey);
       var monthZodiac = getZodiac(m, 15);
       var monthZodiacNote = monthZodiac.name + ' 기운(' + ZODIAC_KEYWORD[monthZodiac.name] + ')이 도는 달입니다.';
+      var personalMonth = getPersonalMonthNumber(personalYear, m);
+      var personalMonthNote = '개인월 ' + personalMonth + ' — ' + PERSONAL_MONTH_THEME[personalMonth];
       var monthElement = STEM_ELEMENT[mp.stemIdx];
       var yearMonthRelation = elementRelation(monthElement, yearElement);
       var yearMonthNote = YEAR_MONTH_INTERACTION_TEXT[yearMonthRelation](monthElement, yearElement);
+      var changeNote = getMonthlyChangeNote(chart, mp.branchIdx);
       rows += '<div class="month-row">' +
         '<div class="month-row-head">' +
           '<span class="month-num">' + m + '월</span>' +
@@ -1511,15 +1565,17 @@
         '<p>' + TEN_GOD_MONTHLY_ADVICE[tenGod] + '</p>' +
         '<div class="month-subline"><b>올해 흐름과의 관계</b>' + yearMonthNote + '</div>' +
         '<div class="month-subline"><b>이 달의 별자리 기운</b>' + monthZodiacNote + '</div>' +
+        '<div class="month-subline"><b>이 달의 수비학 사이클</b>' + personalMonthNote + '</div>' +
         '<div class="month-subline"><b>재물</b>' + wealthLine + '</div>' +
         '<div class="month-subline"><b>관계</b>' + TEN_GOD_MONTHLY_RELATIONSHIP[tenGod] + '</div>' +
         '<div class="month-subline month-subline-hope"><b>기대해도 좋을 일</b>' + TEN_GOD_MONTHLY_HOPE[tenGod] + '</div>' +
+        (changeNote ? '<div class="month-subline month-subline-change"><b>변동수(이동·이사·이직)</b>' + changeNote + '</div>' : '') +
         '<div class="month-subline"><b>이 달 주의할 점</b>' + TEN_GOD_MONTHLY_RESULTS[tenGod] + '</div>' +
       '</div>';
     }
 
     return '<div class="detail-card" style="--accent:#8B7FC7">' +
-      '<div class="detail-card-title">세운(歲運) · 월별 상세 <span class="basis-tag">사주 중심 · 점성술 보조</span> <span class="badge">' + selectedYear + '년</span></div>' +
+      '<div class="detail-card-title">세운(歲運) · 월별 상세 <span class="basis-tag">사주 중심 · 점성술·수비학 보조</span> <span class="badge">' + selectedYear + '년</span></div>' +
       '<p style="margin-bottom:14px;"><b style="color:#E8C874;">' + selectedYear + '년 전체 흐름 · ' + yearTenGod + '</b><br>' + yearThemeText + '</p>' +
       '<div class="year-select-row"><span>연도 선택</span><select id="yearSelect">' + options + '</select></div>' +
       '<div class="month-list" id="monthList">' + rows + '</div>' +
